@@ -1,0 +1,10 @@
+build
+bin
+int
+.cache
+.vs
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
