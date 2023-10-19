@@ -1,7 +1,8 @@
 # GAMES101-Premake
-使用 Premake5 一键构建 GAMES101 作业框架
+使用 Premake5 一键构建 GAMES101 作业框架，只支持 Windows + VS2022。
 
 # 依赖
+需要下载并安装 VS2022 与 CMake。
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
 [CMake Latest Release](https://cmake.org/download/)
