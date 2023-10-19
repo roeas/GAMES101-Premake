@@ -3,17 +3,18 @@
 
 # 依赖
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
+
 [CMake Latest Release](https://cmake.org/download/)
 
 # 开始
-1. 下载
+## 下载本仓库
 `git clone https://github.com/Hinageshi01/GAMES101-Premake.git`
 
-2. 编译第三方库
+## 编译第三方库
 双击 `SetupThirdParty.bat`
 将进行第三方库依赖项的下载以及编译，可能要等待十分钟左右。
 
-3. 构建 VS2022 solution
+## 构建 VS2022 solution
 双击 `Setup.bat`
 将在根目录生成 `Frame.sln`，双击即可打开框架。
 
