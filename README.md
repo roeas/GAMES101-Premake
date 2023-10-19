@@ -32,13 +32,22 @@
 
 # 其他
 - 作业之间没有任何关系，在一作业内的修改不会应用到另一作业中，编写时注意区分。
+
+- Eigen 版本：3.4.0
 - Eigen 作为纯头文件库包含。
+
+- OpenVC 版本：4.8.1
 - OpenVC 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)。
 - OpenVC 编译为动态链接库，如果出现找不到符号的情可以尝试重新生成解决方案。
 - TODO : 取消 OpenVC 不必要模块的编译。
+- 所有相关文件都在仓库目录下，不需要时删除整个文件夹即可。
 
 # 相关链接
 [Premake 文档](https://premake.github.io/)
+
+[Eigen 文档](https://eigen.tuxfamily.org/dox/)
+
+[OpenCV 文档](https://docs.opencv.org/4.8.0/index.html)
 
 [GAMES101 Spring 2021 作业资源](https://games-cn.org/forums/topic/s2021-games101-zuoyehuizong/)
 
