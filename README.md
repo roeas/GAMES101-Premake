@@ -2,7 +2,7 @@
 使用 Premake5 一键构建 GAMES101 作业框架，只支持 Windows + VS2022。
 
 # 依赖
-需要下载并安装 VS2022 与 CMake。
+需要先下载并安装 VS2022 与 CMake。
 
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
@@ -37,4 +37,4 @@
 
 [GAMES101 Spring 2021 作业资源](https://games-cn.org/forums/topic/s2021-games101-zuoyehuizong/)
 
-[作业 0 来源](https://github.com/slicol/Games101-Homework-Win)
+[作业 0 资源](https://github.com/slicol/Games101-Homework-Win)
