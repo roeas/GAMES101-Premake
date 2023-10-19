@@ -9,18 +9,22 @@
 [CMake Latest Release](https://cmake.org/download/)
 
 # 开始
-### 下载本仓库
+### 1.下载本仓库
 `git clone https://github.com/Hinageshi01/GAMES101-Premake.git`
 
-### 编译第三方库
+### 2.编译第三方库
 双击 `SetupThirdParty.bat`
 
-将进行第三方库依赖项的下载以及编译，可能要等待十分钟左右。
+将进行第三方库依赖项的下载以及编译。
 
-### 构建 VS2022 solution
+### 3.去吃个饭或者给自己泡杯茶
+
+### 4.构建 VS2022 solution
 双击 `Setup.bat`
 
 将在根目录生成 `Frame.sln`，双击即可打开框架。
+
+### 5.搞定！
 
 # 运行
 在 VS 中找到 `解决方案管理器`，右键任一你想运行的作业，点击 `设为启动项`，编译并运行即可。
