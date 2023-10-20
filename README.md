@@ -38,7 +38,7 @@
 - OpenVC 版本：4.8.1
 - OpenVC 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)。
 - OpenVC 编译为动态链接库，如果出现找不到符号的情况可以尝试重新生成解决方案。
-- TODO : 取消 OpenVC 不必要模块的编译。
+- TODO：取消 OpenVC 不必要模块的编译。
 - 所有相关文件都在仓库目录下，不需要时删除整个文件夹即可。
 
 # 相关链接
