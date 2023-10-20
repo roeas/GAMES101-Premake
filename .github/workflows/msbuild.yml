@@ -11,10 +11,14 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checks-out your repo under ${{github.workspace}}
+      uses: actions/checkout@v3
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.1
+
+    - name: Setup thirdparty
+      run: ${{github.workspace}}/SetupThirdParty.bat
 
     - name: Setup project
       run: ${{github.workspace}}/Setup.bat
