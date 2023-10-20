@@ -1,4 +1,6 @@
 # GAMES101-Premake
+[![MSBuild](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml/badge.svg?branch=main)](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml)
+
 由 Premake5 构建的 GAMES101 作业框架，只支持 Windows + VS2022。
 
 # 依赖
@@ -21,9 +23,8 @@
 ### 4.构建 VS2022 solution
 双击 `Setup.bat`
 
-将在根目录生成 `Frame.sln`，双击即可打开框架。
-
 ### 5.搞定！
+双击在根目录生成的 `Frame.sln`，即可打开框架。
 
 # 运行
 在 VS 中找到 `解决方案管理器`，右键任一你想运行的作业，点击 `设为启动项`，编译并运行即可。
