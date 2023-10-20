@@ -4,7 +4,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
-constexpr double MY_PI = 3.141592634;
+constexpr double MY_PI = 3.141592654;
 
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eyePos)
 {
@@ -21,6 +21,7 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eyePos)
 
 Eigen::Matrix4f get_model_matrix(float angle)
 {
+    // 绕 Z 轴旋转
     Eigen::Matrix4f model;
     model <<
         std::cos(angle), -std::sin(angle), 0.0f, 0.0f,
@@ -32,8 +33,10 @@ Eigen::Matrix4f get_model_matrix(float angle)
 
 Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
+    // 由 frustum 的定义得 top 与 right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
+    // 由相机此时的位置方向得 bottom = -top 与 left = -right
     float bottom = -top;
     float left = -right;
 
@@ -63,13 +66,38 @@ Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float
     return Morthographic * Mp2o;
 }
 
+Eigen::Matrix4f get_rotation(float angle, Vector3f n)
+{
+    n = n.normalized();
+    float radian = angle * MY_PI / 180.0f;
+    float cosAngle = std::cos(radian);
+    float sinAngle = std::sin(radian);
+
+    Eigen::Matrix3f N;
+    N <<
+        0.0f, -n.z(), n.y(),
+        n.z(), 0.0f, -n.x(),
+        -n.y(), n.x(), 0.0f;
+    Eigen::Matrix3f gram = n * n.adjoint();
+
+    Eigen::Matrix3f tmp = cosAngle * Eigen::Matrix3f::Identity() + (1.0f - cosAngle) * gram + sinAngle * N;
+    Eigen::Matrix4f ret;
+    ret <<
+        tmp(0, 0), tmp(0, 1), tmp(0, 2), 0.0f,
+        tmp(1, 0), tmp(1, 1), tmp(1, 2), 0.0f,
+        tmp(2, 0), tmp(2, 1), tmp(2, 2), 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f;
+
+    return ret;
+}
+
 int main(int argc, const char **argv)
 {
-    float angle = 0;
+    float angle = 0.0f;
     rst::rasterizer r(700, 700);
-    Eigen::Vector3f eyePos = { 0, 0, 5 };
+    Eigen::Vector3f eyePos = { 0.0f, 0.0f, 5.0f };
 
-    std::vector<Eigen::Vector3f> pos{ {2, 0, -2}, {0, 2, -2}, {-2, 0, -2} };
+    std::vector<Eigen::Vector3f> pos{ {2.0f, 0.0f, -2.0f}, {0.0f, 2.0f, -2.0f}, {-2.0f, 0.0f, -2.0f} };
     std::vector<Eigen::Vector3i> ind{ {0, 1, 2} };
 
     auto posHandle = r.load_positions(pos);
@@ -84,7 +112,7 @@ int main(int argc, const char **argv)
 
         r.set_model(get_model_matrix(angle));
         r.set_view(get_view_matrix(eyePos));
-        r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
+        r.set_projection(get_projection_matrix(45.0f, 1.0f, 0.1f, 50.0f));
 
         r.draw(posHandle, indHandle, rst::Primitive::Triangle);
 
@@ -97,11 +125,11 @@ int main(int argc, const char **argv)
 
         if (key == 'a')
         {
-            angle += 0.2f;
+            angle += 0.1f;
         }
         else if (key == 'd')
         {
-            angle -= 0.2f;
+            angle -= 0.1f;
         }
     }
 
