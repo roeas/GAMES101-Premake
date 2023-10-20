@@ -1,0 +1,30 @@
+name: MSBuild
+
+on:
+  push:
+    branches: [ "main", "answer" ]
+  pull_request:
+    branches: [ "main", "answer" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checks-out this repo under GITHUB_WORKSPACE
+      uses: actions/checkout@v4.1.1
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Setup thirdparty
+      run: ${{github.workspace}}/SetupThirdParty.bat
+
+    - name: Setup project
+      run: ${{github.workspace}}/Setup.bat
+
+    - name: Build Debug x64
+      run: msbuild ${{github.workspace}}/Frame.sln /p:Configuration=Debug /p:Platform=x64
+
+    - name: Build Release x64
+      run: msbuild ${{github.workspace}}/Frame.sln /p:Configuration=Release /p:Platform=x64
