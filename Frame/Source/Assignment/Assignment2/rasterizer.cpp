@@ -40,9 +40,27 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 }
 
 
-static bool insideTriangle(int x, int y, const Vector3f* _v)
+static bool insideTriangle(float x, float y, const Vector3f* v)
 {   
-    // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
+    // 此时位于屏幕空间，保证 z 分量一致即可
+    Eigen::Vector3f point = { x, y, 0.0f };
+    Eigen::Vector3f vertex_a = { v[0].x(), v[0].y(), 0.0f };
+    Eigen::Vector3f vertex_b = { v[1].x(), v[1].y(), 0.0f };
+    Eigen::Vector3f vertex_c = { v[2].x(), v[2].y(), 0.0f };
+
+    Eigen::Vector3f vector_ab = vertex_b - vertex_a;
+    Eigen::Vector3f vector_bc = vertex_c - vertex_b;
+    Eigen::Vector3f vector_ca = vertex_a - vertex_c;
+    Eigen::Vector3f vector_ap = point - vertex_a;
+    Eigen::Vector3f vector_bp = point - vertex_b;
+    Eigen::Vector3f vector_cp = point - vertex_c;
+
+    float crossz1 = vector_ab.cross(vector_ap).z();
+    float crossz2 = vector_bc.cross(vector_bp).z();
+    float crossz3 = vector_ca.cross(vector_cp).z();
+
+    return (crossz1 <= 0.0f && crossz2 <= 0.0f && crossz3 <= 0.0f) ||
+        (crossz1 >= 0.0f && crossz2 >= 0.0f && crossz3 >= 0.0f);
 }
 
 static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector3f* v)
@@ -106,16 +124,78 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
     
-    // TODO : Find out the bounding box of current triangle.
-    // iterate through the pixel and find if the current pixel is inside the triangle
+    // AABB 应当由整数的像素下标索引定义
+    uint16_t min_x = std::numeric_limits<uint16_t>::max();
+    uint16_t max_x = std::numeric_limits<uint16_t>::min();
+    uint16_t min_y = std::numeric_limits<uint16_t>::max();
+    uint16_t max_y = std::numeric_limits<uint16_t>::min();
+    for (size_t i = 0; i < 3; ++i)
+    {
+        min_x = std::min(static_cast<uint16_t>(std::floor(v[i].x())), min_x);
+        max_x = std::max(static_cast<uint16_t>(std::ceil(v[i].x())), max_x);
+        min_y = std::min(static_cast<uint16_t>(std::floor(v[i].y())), min_y);
+        max_y = std::max(static_cast<uint16_t>(std::ceil(v[i].y())), max_y);
+    }
 
-    // If so, use the following code to get the interpolated z value.
-    //auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
-    //float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-    //float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-    //z_interpolated *= w_reciprocal;
+    for (uint16_t pos_x = min_x; pos_x <= max_x; ++pos_x)
+    {
+        for (uint16_t pos_y = min_y; pos_y <= max_y; ++pos_y)
+        {
+            size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
+            float &depth = depth_buf[index];
 
-    // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+            // SSAA 所采样的四个子像素相对于像素左下角坐标的偏移量
+            static const std::vector<Eigen::Vector2f> s_offsets = { {0.25f, 0.25f}, {0.75f, 0.25f}, {0.25f, 0.75f}, {0.75f, 0.75f} };
+            constexpr uint8_t SubPixelCount = 4;
+            assert(s_offsets.size() == SubPixelCount);
+
+            // 用于计算子像素贡献值
+            uint8_t activeColor = 0;
+            uint8_t activeDepth = 0;
+            Eigen::Vector3f finalColor = { 0.0f, 0.0f , 0.0f };
+            float finalDepth = 0.0f;
+
+            for (const auto& offset : s_offsets)
+            {
+                float subPos_x = static_cast<float>(pos_x) + offset.x();
+                float subPos_y = static_cast<float>(pos_y) + offset.y();
+
+                // 获取子像素的深度插值
+                auto [alpha, beta, gamma] = computeBarycentric2D(subPos_x, subPos_y, t.v);
+                float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated *= w_reciprocal;
+
+                if (insideTriangle(subPos_x, subPos_y, t.v))
+                {
+                    if (z_interpolated < depth)
+                    {
+                        // 只有同时通过了 inside 测试与深度测试才会对颜色有贡献
+                        ++activeColor;
+                        finalColor += t.getColor();
+                    }
+                    // 只要通过 inside 测试就会对深度有贡献
+                    ++activeDepth;
+                    finalDepth += z_interpolated;
+                }
+            }
+
+            finalColor /= static_cast<float>(activeColor);
+            finalDepth /= static_cast<float>(activeDepth);
+
+            // 没有通过测试的子像素依旧应当对颜色与深度产生贡献，
+            // 按理来说其值应从 frame_buf_ssaax4 与 depth_buf_ssaax4 中获取。
+            // 鉴于框架本身较为简陋，这里意思到位即可，没有必要魔改框架增加理解难度。
+            // finalColor += static_cast<float>(SubPixelCount - activeColor) / static_cast<float>(SubPixelCount) * frame_buf_ssaax4[subIndex];
+            // finalDepth += static_cast<float>(SubPixelCount - activeDepth) / static_cast<float>(SubPixelCount) * depth_buf_ssaax4[subIndex];
+
+            if (finalDepth < depth)
+            {
+                depth = finalDepth;
+                set_pixel(Eigen::Vector3f{ static_cast<float>(pos_x), static_cast<float>(pos_y), finalDepth }, finalColor);
+            }
+        }
+    }
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)

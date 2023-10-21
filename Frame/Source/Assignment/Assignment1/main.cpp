@@ -62,8 +62,9 @@ Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float
         0.0f, 0.0f, 0.0f, 1.0f;
 
     Eigen::Matrix4f Morthographic = Mrotate * Mtrans;
+    Eigen::Matrix4f Mprojection = Morthographic * Mp2o;
 
-    return Morthographic * Mp2o;
+    return Mprojection;
 }
 
 Eigen::Matrix4f get_rotation(float angle, Vector3f n)
@@ -91,7 +92,7 @@ Eigen::Matrix4f get_rotation(float angle, Vector3f n)
     return ret;
 }
 
-int main(int argc, const char **argv)
+int main()
 {
     float angle = 0.0f;
     rst::rasterizer r(700, 700);
