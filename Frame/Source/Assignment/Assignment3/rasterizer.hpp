@@ -61,21 +61,17 @@ namespace rst
     {
     public:
         rasterizer(int w, int h);
-        pos_buf_id load_positions(const std::vector<Eigen::Vector3f>& positions);
-        ind_buf_id load_indices(const std::vector<Eigen::Vector3i>& indices);
-        col_buf_id load_colors(const std::vector<Eigen::Vector3f>& colors);
-        col_buf_id load_normals(const std::vector<Eigen::Vector3f>& normals);
 
-        void set_model(const Eigen::Matrix4f& m);
-        void set_view(const Eigen::Matrix4f& v);
-        void set_projection(const Eigen::Matrix4f& p);
+        void set_model(Eigen::Matrix4f m);
+        void set_view(Eigen::Matrix4f v);
+        void set_projection(Eigen::Matrix4f p);
 
-        void set_texture(Texture tex) { texture = tex; }
+        void set_texture(Texture tex) { texture = std::move(tex); }
 
         void set_vertex_shader(std::function<Eigen::Vector3f(vertex_shader_payload)> vert_shader);
         void set_fragment_shader(std::function<Eigen::Vector3f(fragment_shader_payload)> frag_shader);
 
-        void set_pixel(const Vector2i &point, const Eigen::Vector3f &color);
+        void set_pixel(const Vector2i &point, Eigen::Vector3f color);
 
         void clear(Buffers buff);
 
@@ -85,8 +81,6 @@ namespace rst
         std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
 
     private:
-        void draw_line(Eigen::Vector3f begin, Eigen::Vector3f end);
-
         void rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector3f, 3>& world_pos);
 
         // VERTEX SHADER -> MVP -> Clipping -> /.W -> VIEWPORT -> DRAWLINE/DRAWTRI -> FRAGSHADER
@@ -111,6 +105,7 @@ namespace rst
         std::vector<Eigen::Vector3f> frame_buf;
         std::vector<float> depth_buf;
         int get_index(int x, int y);
+        int get_index(const Vector2i &xy);
 
         int width, height;
 

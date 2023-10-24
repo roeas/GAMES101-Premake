@@ -15,7 +15,7 @@ std::string get_asset_path(std::string relativePath)
     return (std::filesystem::path(FRAME_ASSET_PATH) / std::move(relativePath)).generic_string();
 }
 
-Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
+Eigen::Matrix4f get_view_matrix(const Eigen::Vector3f &eye_pos)
 {
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
 
@@ -359,22 +359,21 @@ int main(int argc, const char** argv)
         r.set_view(get_view_matrix(eye_pos));
         r.set_projection(get_projection_matrix(45.0, 1, 0.1, 50));
 
-        //r.draw(pos_id, ind_id, col_id, rst::Primitive::Triangle);
         r.draw(TriangleList);
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
         image.convertTo(image, CV_8UC3, 1.0f);
         cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
 
-        cv::imshow("image", image);
-        key = cv::waitKey(1);
+        cv::imshow("image", std::move(image));
 
+        key = cv::waitKey(1);
         if (key == 'a' )
         {
-            angle -= 0.1;
+            angle -= 1.0f;
         }
         else if (key == 'd')
         {
-            angle += 0.1;
+            angle += 1.0f;
         }
 
     }

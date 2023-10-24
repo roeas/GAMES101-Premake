@@ -21,10 +21,10 @@ Triangle::Triangle() {
 }
 
 void Triangle::setVertex(int ind, Vector4f ver){
-    v[ind] = ver;
+    v[ind] = std::move(ver);
 }
 void Triangle::setNormal(int ind, Vector3f n){
-    normal[ind] = n;
+    normal[ind] = std::move(n);
 }
 void Triangle::setColor(int ind, float r, float g, float b) {
     if((r<0.0) || (r>255.) ||
@@ -39,7 +39,7 @@ void Triangle::setColor(int ind, float r, float g, float b) {
     return;
 }
 void Triangle::setTexCoord(int ind, Vector2f uv) {
-    tex_coords[ind] = uv;
+    tex_coords[ind] = std::move(uv);
 }
 
 std::array<Vector4f, 3> Triangle::toVector4() const
@@ -47,19 +47,4 @@ std::array<Vector4f, 3> Triangle::toVector4() const
     std::array<Vector4f, 3> res;
     std::transform(std::begin(v), std::end(v), res.begin(), [](auto& vec) { return Vector4f(vec.x(), vec.y(), vec.z(), 1.f); });
     return res;
-}
-
-void Triangle::setNormals(const std::array<Vector3f, 3>& normals)
-{
-    normal[0] = normals[0];
-    normal[1] = normals[1];
-    normal[2] = normals[2];
-}
-
-void Triangle::setColors(const std::array<Vector3f, 3>& colors)
-{
-    auto first_color = colors[0];
-    setColor(0, colors[0][0], colors[0][1], colors[0][2]);
-    setColor(1, colors[1][0], colors[1][1], colors[1][2]);
-    setColor(2, colors[2][0], colors[2][1], colors[2][2]);
 }
