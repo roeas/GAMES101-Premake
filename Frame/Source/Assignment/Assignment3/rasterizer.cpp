@@ -149,7 +149,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
     return Vector4f(v3.x(), v3.y(), v3.z(), w);
 }
 
-static bool insideTriangle(int x, int y, const Vector4f* _v){
+static bool insideTriangle(float x, float y, const Vector4f* _v){
     Vector3f v[3];
     for(int i=0;i<3;i++)
         v[i] = {_v[i].x(),_v[i].y(), 1.0};
@@ -247,40 +247,58 @@ static Eigen::Vector3f interpolate(float alpha, float beta, float gamma, const E
 
 static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const Eigen::Vector2f& vert1, const Eigen::Vector2f& vert2, const Eigen::Vector2f& vert3, float weight)
 {
-    auto u = (alpha * vert1[0] + beta * vert2[0] + gamma * vert3[0]);
-    auto v = (alpha * vert1[1] + beta * vert2[1] + gamma * vert3[1]);
+    return (alpha * vert1 + beta * vert2 + gamma * vert3) / weight;
+}
 
-    u /= weight;
-    v /= weight;
-
-    return Eigen::Vector2f(u, v);
+static float interpolate(float alpha, float beta, float gamma, float vert1, float vert2, float vert3, float weight)
+{
+    return (alpha * vert1 + beta * vert2 + gamma * vert3) / weight;
 }
 
 //Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector3f, 3>& view_pos) 
 {
-    // TODO: From your HW3, get the triangle rasterization code.
-    // TODO: Inside your rasterization loop:
-    //    * v[i].w() is the vertex view space depth value z.
-    //    * Z is interpolated view space depth for the current pixel
-    //    * zp is depth between zNear and zFar, used for z-buffer
+    const Eigen::Vector4f *v = t.v;
 
-    // float Z = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-    // float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-    // zp *= Z;
+    // AABB 应当由整数的像素下标索引定义
+    uint16_t min_x = std::floor(std::min(v[0].x(), std::min(v[1].x(), v[2].x())));
+    uint16_t max_x = std::ceil(std::max(v[0].x(), std::max(v[1].x(), v[2].x())));
+    uint16_t min_y = std::floor(std::min(v[0].y(), std::min(v[1].y(), v[2].y())));
+    uint16_t max_y = std::ceil(std::max(v[0].y(), std::max(v[1].y(), v[2].y())));
 
-    // TODO: Interpolate the attributes:
-    // auto interpolated_color
-    // auto interpolated_normal
-    // auto interpolated_texcoords
-    // auto interpolated_shadingcoords
+    for (uint16_t pos_x = min_x; pos_x <= max_x; ++pos_x)
+    {
+        for (uint16_t pos_y = min_y; pos_y <= max_y; ++pos_y)
+        {
+            if (insideTriangle(static_cast<float>(pos_x) + 0.5f, static_cast<float>(pos_y) + 0.5f, t.v))
+            {
+                size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
+                float &depth = depth_buf[index];
 
-    // Use: fragment_shader_payload payload( interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
-    // Use: payload.view_pos = interpolated_shadingcoords;
-    // Use: Instead of passing the triangle's color directly to the frame buffer, pass the color to the shaders first to get the final color;
-    // Use: auto pixel_color = fragment_shader(payload);
+                auto [alpha, beta, gamma] = computeBarycentric2D(static_cast<float>(pos_x), static_cast<float>(pos_y), t.v);
+                float alpha_w = alpha / v[0].w();
+                float beta_w = beta / v[1].w();
+                float gamma_w = gamma / v[2].w();
+                float weight = alpha_w + beta_w + gamma_w;
 
- 
+                float final_z = interpolate(alpha_w, beta_w, gamma_w, v[0].z(), v[1].z(), v[2].z(), weight);
+
+                // 修复框架 bug
+                if (final_z > depth)
+                {
+                    depth = final_z;
+
+                    Eigen::Vector3f color = interpolate(alpha_w, beta_w, gamma_w, t.color[0], t.color[1], t.color[2], weight);
+                    Eigen::Vector3f normal = interpolate(alpha, beta, gamma, t.normal[0], t.normal[1], t.normal[2], weight);
+                    Eigen::Vector2f uv = interpolate(alpha, beta, gamma, t.tex_coords[0], t.tex_coords[1], t.tex_coords[2], weight);
+                    Eigen::Vector3f point = interpolate(alpha, beta, gamma, view_pos[0], view_pos[1], view_pos[2], weight);
+
+                    fragment_shader_payload payload(point, color, normal.normalized(), uv, texture.has_value() ? &texture.value() : nullptr);
+                    set_pixel({ static_cast<float>(pos_x),static_cast<float>(pos_y) }, fragment_shader(payload));
+                }
+            }
+        }
+    }
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)
@@ -306,7 +324,8 @@ void rst::rasterizer::clear(rst::Buffers buff)
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
-        std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());
+        // 修复框架 bug
+        std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::lowest());
     }
 }
 

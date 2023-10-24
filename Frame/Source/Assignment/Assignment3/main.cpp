@@ -56,11 +56,15 @@ Eigen::Matrix4f get_model_matrix(float angle)
 
 Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
+    // 修复框架 bug
+    near = -near;
+    far = -far;
+
     // 由 frustum 的定义得 top 与 right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
 
-    // 由相机此时的位置方向得 bottom = -top 与 left = -right
+    // 由相机此时的位置与方向得 bottom = -top 与 left = -right
     float bottom = -top;
     float left = -right;
 
@@ -186,8 +190,6 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
     return result_color * 255.f;
 }
 
-
-
 Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payload)
 {
     
@@ -306,7 +308,7 @@ int main(int argc, const char** argv)
     rst::rasterizer r(700, 700);
 
     r.set_texture(Texture(get_asset_path("models/spot/hmap.jpg")));
-    std::function<Eigen::Vector3f(fragment_shader_payload)> active_shader = phong_fragment_shader;
+    std::function<Eigen::Vector3f(fragment_shader_payload)> active_shader = normal_fragment_shader;
 
     if (argc >= 2)
     {
@@ -349,23 +351,6 @@ int main(int argc, const char** argv)
     int key = 0;
     int frame_count = 0;
 
-    if (command_line)
-    {
-        r.clear(rst::Buffers::Color | rst::Buffers::Depth);
-        r.set_model(get_model_matrix(angle));
-        r.set_view(get_view_matrix(eye_pos));
-        r.set_projection(get_projection_matrix(45.0, 1, 0.1, 50));
-
-        r.draw(TriangleList);
-        cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
-        image.convertTo(image, CV_8UC3, 1.0f);
-        cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
-
-        cv::imwrite(filename, image);
-
-        return 0;
-    }
-
     while(key != 27)
     {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
@@ -381,8 +366,7 @@ int main(int argc, const char** argv)
         cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
 
         cv::imshow("image", image);
-        cv::imwrite(filename, image);
-        key = cv::waitKey(10);
+        key = cv::waitKey(1);
 
         if (key == 'a' )
         {
