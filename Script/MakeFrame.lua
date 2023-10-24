@@ -23,7 +23,7 @@ function MakeAssignment(projectName)
 		
 		-- Set definitions.
 		defines {
-			
+			"FRAME_ASSET_PATH=\""..AssetPath.."\"",
 		}
 		
 		-- Set files.
@@ -49,6 +49,7 @@ function MakeAssignment(projectName)
 			path.join(ThirdPartyPath, "opencv/include"),
 			path.join(ThirdPartyPath, "opencv/build"),
 			path.join(ThirdPartyPath, "opencv/modules/**/include"),
+			AssetPath,
 		}
 		
 		-- Link to thirdparty libs.
@@ -109,3 +110,4 @@ end
 MakeAssignment("Assignment0")
 MakeAssignment("Assignment1")
 MakeAssignment("Assignment2")
+MakeAssignment("Assignment3")
