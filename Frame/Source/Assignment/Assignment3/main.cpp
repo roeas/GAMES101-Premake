@@ -54,12 +54,41 @@ Eigen::Matrix4f get_model_matrix(float angle)
     return translate * rotation * scale;
 }
 
-Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
+Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
-    // TODO: Use the same projection matrix from the previous assignments
-    Eigen::Matrix4f projection;
+    // 由 frustum 的定义得 top 与 right
+    float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
+    float right = aspect * top;
 
-    return projection;
+    // 由相机此时的位置方向得 bottom = -top 与 left = -right
+    float bottom = -top;
+    float left = -right;
+
+    Eigen::Matrix4f Mp2o;
+    Mp2o <<
+        near, 0.0f, 0.0f, 0.0f,
+        0.0f, near, 0.0f, 0.0f,
+        0.0f, 0.0f, near + far, -near * far,
+        0.0f, 0.0f, 1.0f, 0.0f;
+
+    Eigen::Matrix4f Mtrans;
+    Mtrans <<
+        1.0f, 0.0f, 0.0f, (right + left) * -0.5f,
+        0.0f, 1.0f, 0.0f, (top + bottom) * -0.5f,
+        0.0f, 0.0f, 1.0f, (near + far) * -0.5f,
+        0.0f, 0.0f, 0.0f, 1.0f;
+
+    Eigen::Matrix4f Mrotate;
+    Mrotate <<
+        2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+        0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+        0.0f, 0.0f, 2.0f / (near - far), 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f;
+
+    Eigen::Matrix4f Morthographic = Mrotate * Mtrans;
+    Eigen::Matrix4f Mprojection = Morthographic * Mp2o;
+
+    return Mprojection;
 }
 
 Eigen::Vector3f vertex_shader(const vertex_shader_payload& payload)

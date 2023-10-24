@@ -36,6 +36,7 @@ Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float
     // 由 frustum 的定义得 top 与 right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
+
     // 由相机此时的位置方向得 bottom = -top 与 left = -right
     float bottom = -top;
     float left = -right;

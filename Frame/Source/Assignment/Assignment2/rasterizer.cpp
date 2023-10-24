@@ -43,10 +43,10 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 static bool insideTriangle(float x, float y, const Vector3f* v)
 {   
     // 此时位于屏幕空间，保证 z 分量一致即可
-    Eigen::Vector3f point = { x, y, 0.0f };
-    Eigen::Vector3f vertex_a = { v[0].x(), v[0].y(), 0.0f };
-    Eigen::Vector3f vertex_b = { v[1].x(), v[1].y(), 0.0f };
-    Eigen::Vector3f vertex_c = { v[2].x(), v[2].y(), 0.0f };
+    Eigen::Vector3f point = { x, y, 1.0f };
+    Eigen::Vector3f vertex_a = { v[0].x(), v[0].y(), 1.0f };
+    Eigen::Vector3f vertex_b = { v[1].x(), v[1].y(), 1.0f };
+    Eigen::Vector3f vertex_c = { v[2].x(), v[2].y(), 1.0f };
 
     Eigen::Vector3f vector_ab = vertex_b - vertex_a;
     Eigen::Vector3f vector_bc = vertex_c - vertex_b;
