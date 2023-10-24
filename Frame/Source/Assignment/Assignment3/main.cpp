@@ -9,7 +9,6 @@
 #include "OBJ_Loader.h"
 
 #include <filesystem>
-#include <initializer_list>
 
 std::string get_asset_path(std::string relativePath)
 {
