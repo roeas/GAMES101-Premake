@@ -37,7 +37,7 @@ Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
 
-    // 由相机此时的位置方向得 bottom = -top 与 left = -right
+    // 由相机此时的位置与方向得 bottom = -top 与 left = -right
     float bottom = -top;
     float left = -right;
 

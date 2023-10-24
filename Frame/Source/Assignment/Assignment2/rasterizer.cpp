@@ -125,17 +125,10 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
     
     // AABB 应当由整数的像素下标索引定义
-    uint16_t min_x = std::numeric_limits<uint16_t>::max();
-    uint16_t max_x = std::numeric_limits<uint16_t>::min();
-    uint16_t min_y = std::numeric_limits<uint16_t>::max();
-    uint16_t max_y = std::numeric_limits<uint16_t>::min();
-    for (size_t i = 0; i < 3; ++i)
-    {
-        min_x = std::min(static_cast<uint16_t>(std::floor(v[i].x())), min_x);
-        max_x = std::max(static_cast<uint16_t>(std::ceil(v[i].x())), max_x);
-        min_y = std::min(static_cast<uint16_t>(std::floor(v[i].y())), min_y);
-        max_y = std::max(static_cast<uint16_t>(std::ceil(v[i].y())), max_y);
-    }
+    uint16_t min_x = std::floor(std::min(v[0].x(), std::min(v[1].x(), v[2].x())));
+    uint16_t max_x = std::ceil(std::max(v[0].x(), std::max(v[1].x(), v[2].x())));
+    uint16_t min_y = std::floor(std::min(v[0].y(), std::min(v[1].y(), v[2].y())));
+    uint16_t max_y = std::ceil(std::max(v[0].y(), std::max(v[1].y(), v[2].y())));
 
     for (uint16_t pos_x = min_x; pos_x <= max_x; ++pos_x)
     {
@@ -168,7 +161,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
 
                 if (insideTriangle(subPos_x, subPos_y, t.v))
                 {
-                    if (z_interpolated < depth)
+                    // 修复框架 bug
+                    if (z_interpolated > depth)
                     {
                         // 只有同时通过了 inside 测试与深度测试才会对颜色有贡献
                         ++activeColor;
@@ -189,7 +183,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             // finalColor += static_cast<float>(SubPixelCount - activeColor) / static_cast<float>(SubPixelCount) * frame_buf_ssaax2[subIndex];
             // finalDepth += static_cast<float>(SubPixelCount - activeDepth) / static_cast<float>(SubPixelCount) * depth_buf_ssaax2[subIndex];
 
-            if (finalDepth < depth)
+            // 修复框架 bug
+            if (finalDepth > depth)
             {
                 depth = finalDepth;
                 set_pixel(Eigen::Vector3f{ static_cast<float>(pos_x), static_cast<float>(pos_y), finalDepth }, finalColor);
@@ -221,7 +216,8 @@ void rst::rasterizer::clear(rst::Buffers buff)
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
-        std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());
+        // 修复框架 bug
+        std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::lowest());
     }
 }
 
