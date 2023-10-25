@@ -162,8 +162,13 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
 
 Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 {
+    static constexpr float reciprocal = 1.0f / 255.0f;
+
     static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
-    Eigen::Vector3f kd = payload.texture->getColor(payload.tex_coords.x(), payload.tex_coords.y());
+    Eigen::Vector3f kd =
+        payload.texture ?
+        payload.texture->getColor(payload.tex_coords.x(), payload.tex_coords.y()) * reciprocal :
+        payload.color;
     static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
 
     static std::vector<light> lights = {
@@ -202,42 +207,51 @@ Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 
 Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload &payload)
 {
-
-    Eigen::Vector3f ka = Eigen::Vector3f(0.005, 0.005, 0.005);
+    static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
     Eigen::Vector3f kd = payload.color;
-    Eigen::Vector3f ks = Eigen::Vector3f(0.7937, 0.7937, 0.7937);
+    static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
 
-    auto l1 = light{ {20, 20, 20}, {500, 500, 500} };
-    auto l2 = light{ {-20, 20, 0}, {500, 500, 500} };
+    static std::vector<light> lights = {
+        light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
+        light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
 
-    std::vector<light> lights = { l1, l2 };
-    Eigen::Vector3f amb_light_intensity{ 10, 10, 10 };
-    Eigen::Vector3f eye_pos{ 0, 0, 10 };
+    static Eigen::Vector3f amb_light_intensity{ 10.0f, 10.0f, 10.0f };
+    static Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
-    float p = 150;
+    constexpr static float kh = 0.2;
+    constexpr static float kn = 0.1;
 
-    Eigen::Vector3f color = payload.color;
-    Eigen::Vector3f point = payload.view_pos;
-    Eigen::Vector3f normal = payload.normal;
+    Eigen::Vector3f normal = payload.normal.normalized();
 
+    {
+        float x = normal.x();
+        float y = normal.y();
+        float z = normal.z();
+        Eigen::Vector3f t(x * y / sqrt(x * x + z * z), sqrt(x * x + z * z), z * y / sqrt(x * x + z * z));
+        Eigen::Vector3f b = normal.cross(t);
+        Eigen::Matrix3f TBN;
+        TBN <<
+            t.x(), b.x(), normal.x(),
+            t.y(), b.y(), normal.y(),
+            t.z(), b.z(), normal.z();
 
-    float kh = 0.2, kn = 0.1;
+        float u = payload.tex_coords.x();
+        float v = payload.tex_coords.y();
+        float w = payload.texture->width;
+        float h = payload.texture->height;
 
-    // TODO: Implement bump mapping here
-    // Let n = normal = (x, y, z)
-    // Vector t = (x*y/sqrt(x*x+z*z),sqrt(x*x+z*z),z*y/sqrt(x*x+z*z))
-    // Vector b = n cross product t
-    // Matrix TBN = [t b n]
-    // dU = kh * kn * (h(u+1/w,v)-h(u,v))
-    // dV = kh * kn * (h(u,v+1/h)-h(u,v))
-    // Vector ln = (-dU, -dV, 1)
-    // Normal n = normalize(TBN * ln)
+        float height = payload.texture->getColor(u, v).norm();
+        float height_u = payload.texture->getColor(u + 1.0f / w, v).norm();
+        float height_v = payload.texture->getColor(u, v + 1.0f / h).norm();
 
+        float du = kh * kn * (height_u - height);
+        float dv = kh * kn * (height_v - height);
 
-    Eigen::Vector3f result_color = { 0, 0, 0 };
-    result_color = normal;
+        Eigen::Vector3f localNormal = Eigen::Vector3f{ -du, -dv, 1.0f };
+        normal = (TBN * localNormal).normalized();
+    }
 
-    return result_color * 255.f;
+    return normal * 255.f;
 }
 
 Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payload)
@@ -347,7 +361,6 @@ int main()
         {
             angle += 1.0f;
         }
-
     }
     return 0;
 }

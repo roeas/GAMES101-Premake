@@ -18,7 +18,7 @@ public:
     Vector2f tex_coords[3]; //texture u,v
     Vector3f normal[3]; //normal vector for each vertex
 
-    Texture *tex= nullptr;
+    Texture *tex = nullptr;
     Triangle();
 
     const Eigen::Vector4f& a() const { return v[0]; }

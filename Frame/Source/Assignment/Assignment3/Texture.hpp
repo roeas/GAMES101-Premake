@@ -27,12 +27,11 @@ public:
         u = std::clamp(u, 0.0f, 1.0f);
         v = std::clamp(v, 0.0f, 1.0f);
 
-        float u_img = u * (width - 1);
-        float v_img = (1 - v) * (height - 1);
-        auto color = image_data.at<cv::Vec3b>(v_img, u_img);
+        float u_img = u * static_cast<float>(width - 1);
+        float v_img = (1.0f - v) * static_cast<float>(height - 1);
+        auto color = image_data.at<cv::Vec3b>(static_cast<int>(v_img), static_cast<int>(u_img));
 
-        constexpr float reciprocal = 1.0f / 255.0f;
-        return Eigen::Vector3f(color[0], color[1], color[2]) * reciprocal;
+        return Eigen::Vector3f(color[0], color[1], color[2]);
     }
 
 };
