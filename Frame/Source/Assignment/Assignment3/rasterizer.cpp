@@ -7,30 +7,52 @@
 #include <opencv2/opencv.hpp>
 #include <math.h>
 
-inline static Eigen::Vector4f to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
+namespace
+{
+
+inline static Eigen::Vector4f to_vec4(const Eigen::Vector3f &v3, float w = 1.0f)
 {
     return Vector4f(v3.x(), v3.y(), v3.z(), w);
 }
 
-inline static bool insideTriangle(float x, float y, const Vector4f* _v){
+inline static bool insideTriangle(float x, float y, const Vector4f *_v)
+{
     Vector3f v[3];
-    for(int i=0;i<3;i++)
-        v[i] = {_v[i].x(),_v[i].y(), 1.0};
-    Vector3f f0,f1,f2;
+    for (int i = 0; i < 3; i++)
+        v[i] = { _v[i].x(),_v[i].y(), 1.0 };
+    Vector3f f0, f1, f2;
     f0 = v[1].cross(v[0]);
     f1 = v[2].cross(v[1]);
     f2 = v[0].cross(v[2]);
-    Vector3f p(x,y,1.);
-    if((p.dot(f0)*f0.dot(v[2])>0) && (p.dot(f1)*f1.dot(v[0])>0) && (p.dot(f2)*f2.dot(v[1])>0))
+    Vector3f p(x, y, 1.);
+    if ((p.dot(f0) * f0.dot(v[2]) > 0) && (p.dot(f1) * f1.dot(v[0]) > 0) && (p.dot(f2) * f2.dot(v[1]) > 0))
         return true;
     return false;
 }
 
-inline static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector4f* v){
-    float c1 = (x*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*y + v[1].x()*v[2].y() - v[2].x()*v[1].y()) / (v[0].x()*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*v[0].y() + v[1].x()*v[2].y() - v[2].x()*v[1].y());
-    float c2 = (x*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*y + v[2].x()*v[0].y() - v[0].x()*v[2].y()) / (v[1].x()*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*v[1].y() + v[2].x()*v[0].y() - v[0].x()*v[2].y());
-    float c3 = (x*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*y + v[0].x()*v[1].y() - v[1].x()*v[0].y()) / (v[2].x()*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*v[2].y() + v[0].x()*v[1].y() - v[1].x()*v[0].y());
-    return {c1,c2,c3};
+inline static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector4f *v)
+{
+    float c1 = (x * (v[1].y() - v[2].y()) + (v[2].x() - v[1].x()) * y + v[1].x() * v[2].y() - v[2].x() * v[1].y()) / (v[0].x() * (v[1].y() - v[2].y()) + (v[2].x() - v[1].x()) * v[0].y() + v[1].x() * v[2].y() - v[2].x() * v[1].y());
+    float c2 = (x * (v[2].y() - v[0].y()) + (v[0].x() - v[2].x()) * y + v[2].x() * v[0].y() - v[0].x() * v[2].y()) / (v[1].x() * (v[2].y() - v[0].y()) + (v[0].x() - v[2].x()) * v[1].y() + v[2].x() * v[0].y() - v[0].x() * v[2].y());
+    float c3 = (x * (v[0].y() - v[1].y()) + (v[1].x() - v[0].x()) * y + v[0].x() * v[1].y() - v[1].x() * v[0].y()) / (v[2].x() * (v[0].y() - v[1].y()) + (v[1].x() - v[0].x()) * v[2].y() + v[0].x() * v[1].y() - v[1].x() * v[0].y());
+    return { c1,c2,c3 };
+}
+
+inline static Eigen::Vector3f interpolate(float alpha, float beta, float gamma, const Eigen::Vector3f &vert1, const Eigen::Vector3f &vert2, const Eigen::Vector3f &vert3, float weight)
+{
+    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+}
+
+inline static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const Eigen::Vector2f &vert1, const Eigen::Vector2f &vert2, const Eigen::Vector2f &vert3, float weight)
+{
+    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+}
+
+inline static float interpolate(float alpha, float beta, float gamma, float vert1, float vert2, float vert3, float weight)
+{
+    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+}
+
 }
 
 void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
@@ -39,7 +61,7 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
     float f2 = (50 + 0.1) / 2.0;
 
     Eigen::Matrix4f mvp = projection * view * model;
-    for (const auto& t:TriangleList)
+    for (const auto& t : TriangleList)
     {
         Triangle newtri = *t;
 
@@ -101,21 +123,6 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
         // Also pass view space vertice position
         rasterize_triangle(newtri, viewspace_pos);
     }
-}
-
-inline static Eigen::Vector3f interpolate(float alpha, float beta, float gamma, const Eigen::Vector3f& vert1, const Eigen::Vector3f& vert2, const Eigen::Vector3f& vert3, float weight)
-{
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
-}
-
-inline static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const Eigen::Vector2f& vert1, const Eigen::Vector2f& vert2, const Eigen::Vector2f& vert3, float weight)
-{
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
-}
-
-inline static float interpolate(float alpha, float beta, float gamma, float vert1, float vert2, float vert3, float weight)
-{
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
 }
 
 //Screen space rasterization
@@ -220,11 +227,10 @@ void rst::rasterizer::set_pixel(const Vector2i &point, Eigen::Vector3f color)
 
 void rst::rasterizer::set_vertex_shader(std::function<Eigen::Vector3f(vertex_shader_payload)> vert_shader)
 {
-    vertex_shader = vert_shader;
+    vertex_shader = std::move(vert_shader);
 }
 
 void rst::rasterizer::set_fragment_shader(std::function<Eigen::Vector3f(fragment_shader_payload)> frag_shader)
 {
-    fragment_shader = frag_shader;
+    fragment_shader = std::move(frag_shader);
 }
-
