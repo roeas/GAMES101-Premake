@@ -38,27 +38,25 @@ inline static std::tuple<float, float, float> computeBarycentric2D(float x, floa
     return { c1,c2,c3 };
 }
 
-inline static Eigen::Vector3f interpolate(float alpha, float beta, float gamma, const Eigen::Vector3f &vert1, const Eigen::Vector3f &vert2, const Eigen::Vector3f &vert3, float weight)
+inline static Eigen::Vector3f interpolate(float alpha, float beta, float gamma, const Eigen::Vector3f &vert1, const Eigen::Vector3f &vert2, const Eigen::Vector3f &vert3, float weightReciprocal)
 {
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+    return (vert1 * alpha + vert2 * beta + vert3 * gamma) * weightReciprocal;
 }
-
-inline static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const Eigen::Vector2f &vert1, const Eigen::Vector2f &vert2, const Eigen::Vector2f &vert3, float weight)
+inline static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const Eigen::Vector2f &vert1, const Eigen::Vector2f &vert2, const Eigen::Vector2f &vert3, float weightReciprocal)
 {
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+    return (vert1 * alpha + vert2 * beta + vert3 * gamma) * weightReciprocal;
 }
-
-inline static float interpolate(float alpha, float beta, float gamma, float vert1, float vert2, float vert3, float weight)
+inline static float interpolate(float alpha, float beta, float gamma, float vert1, float vert2, float vert3, float weightReciprocal)
 {
-    return (alpha * vert1 + beta * vert2 + gamma * vert3) * weight;
+    return (vert1 * alpha + vert2 * beta + vert3 * gamma) * weightReciprocal;
 }
 
 }
 
 void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
 
-    float f1 = (50 - 0.1) / 2.0;
-    float f2 = (50 + 0.1) / 2.0;
+    constexpr float f1 = (50 - 0.1) / 2.0;
+    constexpr float f2 = (50 + 0.1) / 2.0;
 
     Eigen::Matrix4f mvp = projection * view * model;
     for (const auto& t : TriangleList)
@@ -116,16 +114,16 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
             newtri.setNormal(i, n[i].head<3>());
         }
 
-        newtri.setColor(0, 148,121.0,92.0);
-        newtri.setColor(1, 148,121.0,92.0);
-        newtri.setColor(2, 148,121.0,92.0);
+        newtri.setColor(0, 138.0f, 186.0f, 92.0);
+        newtri.setColor(1, 138.0f, 186.0f, 92.0);
+        newtri.setColor(2, 138.0f, 186.0f, 92.0);
 
         // Also pass view space vertice position
         rasterize_triangle(newtri, viewspace_pos);
     }
 }
 
-//Screen space rasterization
+// Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector3f, 3>& view_pos) 
 {
     // 为了获取顶点的 w 分量，这里不能使用 Triangle::toVector4
@@ -150,9 +148,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
             float alpha_w = alpha / v[0].w();
             float beta_w = beta / v[1].w();
             float gamma_w = gamma / v[2].w();
-            float weightReciprocal = 1.0f / (alpha_w + beta_w + gamma_w);
-
-            float final_z = interpolate(alpha_w, beta_w, gamma_w, v[0].z(), v[1].z(), v[2].z(), weightReciprocal);
+            float final_z = 1.0f / (alpha_w + beta_w + gamma_w);
 
             size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
             float &depth = depth_buf[index];
@@ -162,13 +158,21 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
             {
                 depth = final_z;
 
-                Eigen::Vector3f color = interpolate(alpha_w, beta_w, gamma_w, t.color[0], t.color[1], t.color[2], weightReciprocal);
-                Eigen::Vector3f normal = interpolate(alpha, beta, gamma, t.normal[0], t.normal[1], t.normal[2], weightReciprocal);
-                Eigen::Vector2f uv = interpolate(alpha, beta, gamma, t.tex_coords[0], t.tex_coords[1], t.tex_coords[2], weightReciprocal);
-                Eigen::Vector3f point = interpolate(alpha, beta, gamma, view_pos[0], view_pos[1], view_pos[2], weightReciprocal);
+                Eigen::Vector3f color = interpolate(alpha_w, beta_w, gamma_w, t.color[0], t.color[1], t.color[2], final_z);
+                Eigen::Vector3f normal = interpolate(alpha_w, beta_w, gamma_w, t.normal[0], t.normal[1], t.normal[2], final_z);
+                Eigen::Vector2f texCoords = interpolate(alpha_w, beta_w, gamma_w, t.tex_coords[0], t.tex_coords[1], t.tex_coords[2], final_z);
+                Eigen::Vector3f point = interpolate(alpha_w, beta_w, gamma_w, view_pos[0], view_pos[1], view_pos[2], final_z);
 
-                fragment_shader_payload payload(std::move(point), std::move(color), std::move(normal), std::move(uv), texture.has_value() ? &texture.value() : nullptr);
-                set_pixel({ static_cast<float>(pos_x),static_cast<float>(pos_y) }, fragment_shader(std::move(payload)));
+                fragment_shader_payload payload(
+                    std::move(point),
+                    std::move(color),
+                    std::move(normal),
+                    std::move(texCoords),
+                    texture.has_value() ? &(texture.value()) : nullptr);
+
+                set_pixel(
+                    { static_cast<float>(pos_x),static_cast<float>(pos_y) },
+                    fragment_shader(std::move(payload)));
             }
         }
     }

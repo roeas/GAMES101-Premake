@@ -24,10 +24,15 @@ public:
 
     Eigen::Vector3f getColor(float u, float v)
     {
-        auto u_img = u * width;
-        auto v_img = (1 - v) * height;
+        u = std::clamp(u, 0.0f, 1.0f);
+        v = std::clamp(v, 0.0f, 1.0f);
+
+        float u_img = u * (width - 1);
+        float v_img = (1 - v) * (height - 1);
         auto color = image_data.at<cv::Vec3b>(v_img, u_img);
-        return Eigen::Vector3f(color[0], color[1], color[2]);
+
+        constexpr float reciprocal = 1.0f / 255.0f;
+        return Eigen::Vector3f(color[0], color[1], color[2]) * reciprocal;
     }
 
 };
