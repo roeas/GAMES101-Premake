@@ -108,12 +108,6 @@ Eigen::Vector3f normal_fragment_shader(const fragment_shader_payload& payload)
     return result;
 }
 
-static Eigen::Vector3f reflect(const Eigen::Vector3f& vec, const Eigen::Vector3f& axis)
-{
-    auto costheta = vec.dot(axis);
-    return (2 * costheta * axis - vec).normalized();
-}
-
 struct light
 {
     Eigen::Vector3f position;
@@ -130,7 +124,7 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
         light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
         light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
 
-    static Eigen::Vector3f amb_light_intensity{10.0f, 10.0f, 10.0f };
+    static Eigen::Vector3f amb_light_intensity{5.0f, 5.0f, 5.0f };
     static Eigen::Vector3f eye_pos{0.0f, 0.0f, 10.0f };
 
     constexpr static float p = 150.0f;
@@ -163,12 +157,13 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
 
 Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 {
+    // 好像 OpenCV 读取 png 时的返回值范围是 [0, 255]，而非 [0, 1]
     static constexpr float reciprocal = 1.0f / 255.0f;
 
     static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
     Eigen::Vector3f kd =
         payload.texture ?
-        payload.texture->getColor(payload.tex_coords.x(), payload.tex_coords.y()) * reciprocal :
+        payload.texture->getColorBilinear(payload.tex_coords.x(), payload.tex_coords.y()) * reciprocal :
         payload.color;
     static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
 
@@ -176,7 +171,7 @@ Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
         light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
         light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
 
-    static Eigen::Vector3f amb_light_intensity{ 10.0f, 10.0f, 10.0f };
+    static Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
     static Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
     constexpr static float p = 150.0f;
@@ -258,7 +253,7 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
         light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
         light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
 
-    static Eigen::Vector3f amb_light_intensity{ 10.0f, 10.0f, 10.0f };
+    static Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
     static Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
     constexpr static float kh = 0.2f;
@@ -268,8 +263,6 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
     Eigen::Vector3f point = payload.view_pos;
     Eigen::Vector3f normal = payload.normal.normalized();
     Eigen::Vector3f viewDir = (eye_pos - point).normalized();
-
-    point += kn * normal * payload.texture->getColor(payload.tex_coords.x(), payload.tex_coords.y()).norm();
 
     {
         float x = normal.x();
@@ -299,6 +292,9 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
 
         float du = kh * kn * (height_u - height);
         float dv = kh * kn * (height_v - height);
+
+        // 将着色点沿着原法线的方向进行位移
+        point += kn * normal * height;
 
         Eigen::Vector3f localNormal = Eigen::Vector3f{ -du, -dv, 1.0f };
         normal = (TBN * localNormal).normalized();
@@ -362,7 +358,7 @@ int main()
     r.set_vertex_shader(vertex_shader);
     r.set_fragment_shader(displacement_fragment_shader);
 
-    // r.set_texture(Texture(get_asset_path("models/spot/spot_texture.png")));
+    //r.set_texture(Texture(get_asset_path("models/spot/spot_texture.png")));
     r.set_texture(Texture(get_asset_path("models/spot/hmap.jpg")));
 
     while(key != 27)

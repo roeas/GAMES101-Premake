@@ -53,8 +53,8 @@ inline static float interpolate(float alpha, float beta, float gamma, float vert
 
 }
 
-void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
-
+void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList)
+{
     constexpr float f1 = (50 - 0.1) / 2.0;
     constexpr float f2 = (50 + 0.1) / 2.0;
 
