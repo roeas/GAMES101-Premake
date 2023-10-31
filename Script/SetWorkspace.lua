@@ -1,16 +1,16 @@
 workspace("Frame")
 	location(RootPath)
-	targetdir(BinariesPath)
+	targetdir(BinaryPath)
 	
 	architecture("x64")
 	configurations { "Debug", "Release" }
 	
-	-- No optimization in debug mode.
+	-- No optimization in Debug mode.
 	filter { "configurations:Debug" }
 		symbols("On")
 		optimize("Off")
 		
-	-- Full optimization in release maode.
+	-- Full optimization in Release maode.
 	filter { "configurations:Release" }
 		symbols("Off")
 		optimize("Full")
