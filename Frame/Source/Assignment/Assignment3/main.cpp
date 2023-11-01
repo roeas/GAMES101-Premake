@@ -8,12 +8,7 @@
 #include "Texture.hpp"
 #include "OBJ_Loader.h"
 
-#include <filesystem>
-
-std::string get_asset_path(std::string relativePath)
-{
-    return (std::filesystem::path(FRAME_ASSET_PATH) / std::move(relativePath)).generic_string();
-}
+#include "Utils.hpp"
 
 Eigen::Matrix4f get_view_matrix(const Eigen::Vector3f &eye_pos)
 {
@@ -328,7 +323,7 @@ int main()
 {
     objl::Loader Loader;
     std::vector<Triangle *> TriangleList;
-    Loader.LoadFile(get_asset_path("models/spot/spot_triangulated_good.obj"));
+    Loader.LoadFile(PathFromAsset("models/spot/spot_triangulated_good.obj"));
     for(auto &mesh : Loader.LoadedMeshes)
     {
         for(int i = 0; i < mesh.Vertices.size(); i += 3)
@@ -358,8 +353,8 @@ int main()
     r.set_vertex_shader(vertex_shader);
     r.set_fragment_shader(displacement_fragment_shader);
 
-    //r.set_texture(Texture(get_asset_path("models/spot/spot_texture.png")));
-    r.set_texture(Texture(get_asset_path("models/spot/hmap.jpg")));
+    //r.set_texture(Texture(PathFromAsset("models/spot/spot_texture.png")));
+    r.set_texture(Texture(PathFromAsset("models/spot/hmap.jpg")));
 
     while(key != 27)
     {

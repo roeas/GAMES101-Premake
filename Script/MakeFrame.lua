@@ -28,6 +28,7 @@ function MakeAssignment(projectName)
 		
 		-- Set files.
 		files {
+			path.join(AssignmentsPath, "Utils.hpp"),
 			path.join(assignmentPath, "**.*"),
 			path.join(ThirdPartyPath, "eigen3/Eigen/**.*"),
 		}
@@ -112,3 +113,6 @@ MakeAssignment("Assignment1")
 MakeAssignment("Assignment2")
 MakeAssignment("Assignment3")
 MakeAssignment("Assignment4")
+MakeAssignment("Assignment5")
+MakeAssignment("Assignment6")
+MakeAssignment("Assignment7")
