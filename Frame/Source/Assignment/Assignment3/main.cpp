@@ -8,12 +8,7 @@
 #include "Texture.hpp"
 #include "OBJ_Loader.h"
 
-#include <filesystem>
-
-std::string get_asset_path(std::string relativePath)
-{
-    return (std::filesystem::path(FRAME_ASSET_PATH) / std::move(relativePath)).generic_string();
-}
+#include "Utils.hpp"
 
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
 {
@@ -258,7 +253,7 @@ int main(int argc, const char** argv)
     objl::Loader Loader;
 
     // Load .obj File
-    bool loadout = Loader.LoadFile(get_asset_path("models/spot/spot_triangulated_good.obj"));
+    bool loadout = Loader.LoadFile(PathFromAsset("models/spot/spot_triangulated_good.obj"));
     for(auto mesh:Loader.LoadedMeshes)
     {
         for(int i=0;i<mesh.Vertices.size();i+=3)
@@ -276,7 +271,7 @@ int main(int argc, const char** argv)
 
     rst::rasterizer r(700, 700);
 
-    r.set_texture(Texture(get_asset_path("models/spot/hmap.jpg")));
+    r.set_texture(Texture(PathFromAsset("models/spot/hmap.jpg")));
     std::function<Eigen::Vector3f(fragment_shader_payload)> active_shader = phong_fragment_shader;
 
     if (argc >= 2)
@@ -288,7 +283,7 @@ int main(int argc, const char** argv)
         {
             std::cout << "Rasterizing using the texture shader\n";
             active_shader = texture_fragment_shader;
-            r.set_texture(Texture(get_asset_path("models/spot/spot_texture.png")));
+            r.set_texture(Texture(PathFromAsset("models/spot/spot_texture.png")));
         }
         else if (argc == 3 && std::string(argv[2]) == "normal")
         {

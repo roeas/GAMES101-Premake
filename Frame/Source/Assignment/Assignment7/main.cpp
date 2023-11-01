@@ -6,12 +6,7 @@
 #include "global.hpp"
 #include <chrono>
 
-#include <filesystem>
-
-std::string get_asset_path(std::string relativePath)
-{
-    return (std::filesystem::path(FRAME_ASSET_PATH) / std::move(relativePath)).generic_string();
-}
+#include "Utils.hpp"
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -32,12 +27,12 @@ int main(int argc, char** argv)
     Material* light = new Material(DIFFUSE, (8.0f * Vector3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vector3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vector3f(0.737f+0.642f,0.737f+0.159f,0.737f)));
     light->Kd = Vector3f(0.65f);
 
-    MeshTriangle floor(get_asset_path("models/cornellbox/floor.obj"), white);
-    MeshTriangle shortbox(get_asset_path("models/cornellbox/shortbox.obj"), white);
-    MeshTriangle tallbox(get_asset_path("models/cornellbox/tallbox.obj"), white);
-    MeshTriangle left(get_asset_path("models/cornellbox/left.obj"), red);
-    MeshTriangle right(get_asset_path("models/cornellbox/right.obj"), green);
-    MeshTriangle light_(get_asset_path("models/cornellbox/light.obj"), light);
+    MeshTriangle floor(PathFromAsset("models/cornellbox/floor.obj"), white);
+    MeshTriangle shortbox(PathFromAsset("models/cornellbox/shortbox.obj"), white);
+    MeshTriangle tallbox(PathFromAsset("models/cornellbox/tallbox.obj"), white);
+    MeshTriangle left(PathFromAsset("models/cornellbox/left.obj"), red);
+    MeshTriangle right(PathFromAsset("models/cornellbox/right.obj"), green);
+    MeshTriangle light_(PathFromAsset("models/cornellbox/light.obj"), light);
 
     scene.Add(&floor);
     scene.Add(&shortbox);

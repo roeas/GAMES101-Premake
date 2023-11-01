@@ -4,6 +4,8 @@
 #include "Scene.hpp"
 #include <optional>
 
+#include <Utils.hpp>
+
 inline float deg2rad(const float &deg)
 { return deg * M_PI/180.0; }
 
@@ -237,7 +239,8 @@ void Renderer::Render(const Scene& scene)
     }
 
     // save framebuffer to file
-    FILE* fp = fopen("binary.ppm", "wb");
+    std::string outputPath = PathFromAsset("output/binaryAssigment5.ppm");
+    FILE* fp = fopen(outputPath.c_str(), "wb");
     (void)fprintf(fp, "P6\n%d %d\n255\n", scene.width, scene.height);
     for (auto i = 0; i < scene.height * scene.width; ++i) {
         static unsigned char color[3];

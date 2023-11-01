@@ -5,12 +5,7 @@
 #include "global.hpp"
 #include <chrono>
 
-#include <filesystem>
-
-std::string get_asset_path(std::string relativePath)
-{
-    return (std::filesystem::path(FRAME_ASSET_PATH) / std::move(relativePath)).generic_string();
-}
+#include "Utils.hpp"
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -20,7 +15,7 @@ int main(int argc, char** argv)
 {
     Scene scene(1280, 960);
 
-    MeshTriangle bunny(get_asset_path("models/bunny2/bunny.obj"));
+    MeshTriangle bunny(PathFromAsset("models/bunnyAssignment6/bunny.obj"));
 
     scene.Add(&bunny);
     scene.Add(std::make_unique<Light>(Vector3f(-20, 70, 20), 1));
