@@ -351,10 +351,11 @@ int main()
     // bump_fragment_shader
     // displacement_fragment_shader
     r.set_vertex_shader(vertex_shader);
-    r.set_fragment_shader(displacement_fragment_shader);
+    r.set_fragment_shader(texture_fragment_shader);
 
-    //r.set_texture(Texture(PathFromAsset("models/spot/spot_texture.png")));
-    r.set_texture(Texture(PathFromAsset("models/spot/hmap.jpg")));
+    // spot_texture.png
+    // hmap.jpg
+    r.set_texture(Texture(PathFromAsset("models/spot/spot_texture.png")));
 
     while(key != 27)
     {
@@ -371,7 +372,7 @@ int main()
 
         cv::imshow("image", std::move(image));
 
-        key = cv::waitKey(1);
+        key = cv::waitKey(10);
         if (key == 'a' )
         {
             angle -= 1.0f;

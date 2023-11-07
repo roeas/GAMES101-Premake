@@ -121,7 +121,7 @@ int main()
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
         image.convertTo(image, CV_8UC3, 1.0f);
         cv::imshow("image", image);
-        key = cv::waitKey(1);
+        key = cv::waitKey(10);
 
         std::cout << "frame count: " << frameCount++ << '\n';
 
