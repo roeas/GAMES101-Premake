@@ -35,6 +35,9 @@ function MakeAssignment(projectName)
 		
 		-- Set filter.
 		vpaths {
+			["Source/Utils/"] = { 
+				path.join(AssignmentsPath, "Utils.hpp"),
+			},
 			["Source/"] = { 
 				path.join(assignmentPath, "**.*"),
 			},
@@ -114,5 +117,7 @@ MakeAssignment("Assignment4")
 MakeAssignment("Assignment5")
 MakeAssignment("Assignment6")
 MakeAssignment("Assignment7")
+
+--dofile("MakeAssignment8.lua")
 
 print("")
