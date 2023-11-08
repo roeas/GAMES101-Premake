@@ -8,6 +8,8 @@
 #include "base64.h"
 #include "console.h"
 
+#include "osdfont.h"
+
 using namespace std;
 
 namespace CGL {

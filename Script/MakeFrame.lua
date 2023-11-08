@@ -118,6 +118,7 @@ MakeAssignment("Assignment5")
 MakeAssignment("Assignment6")
 MakeAssignment("Assignment7")
 
+dofile("MakeCGL.lua")
 --dofile("MakeAssignment8.lua")
 
 print("")
