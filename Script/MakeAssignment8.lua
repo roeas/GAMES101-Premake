@@ -9,6 +9,7 @@ project(projectName)
 	-- SharedLib, StaticLib, ConsoleApp
 	language("C++")
 	cppdialect("C++20")
+	dependson("CGL")
 	
 	-- Intermediate and binary path.
 	location(IntermediatePath)
@@ -31,7 +32,6 @@ project(projectName)
 	files {
 		path.join(AssignmentsPath, "Utils.hpp"),
 		path.join(assignmentPath, "**.*"),
-		path.join(ThirdPartyPath, "eigen3/Eigen/**.*"),
 	}
 	
 	-- Set filter.
@@ -46,33 +46,47 @@ project(projectName)
 	
 	-- Set include paths.
 	includedirs {
-		FramePath,
-		SourcePath,
 		AssignmentsPath,
-		assignmentPath,
 		ThirdPartyPath,
-		path.join(ThirdPartyPath, "opencv/include"),
-		path.join(ThirdPartyPath, "opencv/build"),
-		path.join(ThirdPartyPath, "opencv/modules/**/include"),
-		AssetPath,
+		path.join(ThirdPartyPath, "freetype/include"),
+		path.join(ThirdPartyPath, "glew/include"),
+		path.join(ThirdPartyPath, "glfw/include"),
 	}
 	
 	-- Link to thirdparty libs.
 	filter { "configurations:Debug" }
 		libdirs {
-			path.join(ThirdPartyPath, "opencv/build/lib/Debug"),
+			path.join(BinaryPath, "Debug-windows-x86_64/CGL"),
+			path.join(ThirdPartyPath, "freetype/build/Debug"),
+			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Debug"),
+			path.join(ThirdPartyPath, "glfw/build/src/Debug"),
 		}
 		links {
-			"opencv_world481d",
+			"CGLd",
+			"freetyped",
+			"libglew32d",
+			"glfw3",
+			"opengl32",
 		}
 	filter { "configurations:Release" }
 		libdirs {
-			path.join(ThirdPartyPath, "opencv/build/lib/Release"),
+			path.join(BinaryPath, "Release-windows-x86_64/CGL"),
+			path.join(ThirdPartyPath, "freetype/build/Release"),
+			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Release"),
+			path.join(ThirdPartyPath, "glfw/build/src/Release"),
 		}
 		links {
-			"opencv_world481",
+			"CGL",
+			"freetype",
+			"libglew32",
+			"glfw3",
+			"opengl32",
 		}
 	filter {}
+	
+	defines {
+		"GLEW_STATIC",
+	}
 	
 	-- Use /MT and /MTd.
 	staticruntime "on"
@@ -97,14 +111,3 @@ project(projectName)
 		"MultiProcessorCompile",
 	}
 	
-	filter { "configurations:Debug" }
-		postbuildcommands {
-			"{COPY} "..path.join(ThirdPartyPath, "opencv/build/bin/Debug/*.dll".." %{cfg.targetdir}"),
-			"{COPY} "..path.join(ThirdPartyPath, "opencv/build/bin/Debug/*.pdb".." %{cfg.targetdir}"),
-		}
-	filter { "configurations:Release" }
-		postbuildcommands {
-			"{COPY} "..path.join(ThirdPartyPath, "opencv/build/bin/Release/*.dll".." %{cfg.targetdir}"),
-			"{COPY} "..path.join(ThirdPartyPath, "opencv/build/bin/Release/*.pdb".." %{cfg.targetdir}"),
-		}
-	filter {}

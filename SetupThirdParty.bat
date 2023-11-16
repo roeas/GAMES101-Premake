@@ -18,18 +18,18 @@ cmake --build build --target freetype --config Debug
 rem glew
 set "GLEW_PATH=%THIRD_PARTY_PATH%\glew"
 echo [ glew ] path: %GLEW_PATH%
-cd %GLEW_PATH%
+cd %GLEW_PATH%\build\cmake
 
-cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug"
-cmake --build build --config Release
-cmake --build build --config Debug
+cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug" -D BUILD_UTILS=OFF
+cmake --build build --target glew_s --config Release
+cmake --build build --target glew_s --config Debug
 
 rem glfw
 set "GLFW_PATH=%THIRD_PARTY_PATH%\glfw"
 echo [ glfw ] path: %GLFW_PATH%
 cd %GLFW_PATH%
 
-cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug"
+cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug" -D USE_MSVC_RUNTIME_LIBRARY_DLL=OFF -D GLFW_BUILD_EXAMPLES=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_DOCS=OFF
 cmake --build build --target glfw --config Release
 cmake --build build --target glfw --config Debug
 
@@ -39,7 +39,7 @@ echo [ opencv ] path: %OPENCV_PATH%
 cd %OPENCV_PATH%
 
 rem TODO : Remove useless modules.
-cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug" -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_EXAMPLES=OFF -D BUILD_opencv_apps=OFF -D BUILD_opencv_world=ON
+cmake -B build -D CMAKE_CONFIGURATION_TYPES="Release;Debug" -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode -D BUILD_SHARED_LIBS=ON -D BUILD_WITH_STATIC_CRT=ON -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_EXAMPLES=OFF -D BUILD_opencv_apps=OFF -D BUILD_opencv_world=ON
 cmake --build build --target opencv_world --config Release
 cmake --build build --target opencv_world --config Debug
 

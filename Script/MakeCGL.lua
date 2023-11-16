@@ -46,26 +46,32 @@ project(projectName)
 	filter { "configurations:Debug" }
 		libdirs {
 			path.join(ThirdPartyPath, "freetype/build/Debug"),
-			path.join(ThirdPartyPath, "glew/build/Debug"),
+			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Debug"),
 			path.join(ThirdPartyPath, "glfw/build/src/Debug"),
 		}
 		links {
 			"freetyped",
-			"glew",
+			"libglew32d",
 			"glfw3",
+			"opengl32",
 		}
 	filter { "configurations:Release" }
 		libdirs {
 			path.join(ThirdPartyPath, "freetype/build/Release"),
-			path.join(ThirdPartyPath, "glew/build/Release"),
+			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Release"),
 			path.join(ThirdPartyPath, "glfw/build/src/Release"),
 		}
 		links {
 			"freetype",
-			"glew",
+			"libglew32",
 			"glfw3",
+			"opengl32",
 		}
 	filter {}
+	
+	defines {
+		"GLEW_STATIC",
+	}
 	
 	-- Use /MT and /MTd.
 	staticruntime "on"
