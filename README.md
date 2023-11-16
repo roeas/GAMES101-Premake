@@ -50,9 +50,9 @@
 
 - Eigen 版本：3.4.0
 
-- OpenVC 版本：4.8.1
-  - OpenVC 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)
-  - TODO：取消 OpenVC 不必要模块的编译
+- OpenCV 版本：4.8.1
+  - OpenCV 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)
+  - TODO：取消 OpenCV 不必要模块的编译
 
 - Freetype 版本：2.13.2
 
