@@ -35,6 +35,9 @@ function MakeAssignment(projectName)
 		
 		-- Set filter.
 		vpaths {
+			["Source/Utils/"] = { 
+				path.join(AssignmentsPath, "Utils.hpp"),
+			},
 			["Source/"] = { 
 				path.join(assignmentPath, "**.*"),
 			},
@@ -104,8 +107,6 @@ function MakeAssignment(projectName)
 				"{COPY} "..path.join(ThirdPartyPath, "opencv/build/bin/Release/*.pdb".." %{cfg.targetdir}"),
 			}
 		filter {}
-	
-print("")
 end
 
 MakeAssignment("Assignment0")
@@ -116,3 +117,8 @@ MakeAssignment("Assignment4")
 MakeAssignment("Assignment5")
 MakeAssignment("Assignment6")
 MakeAssignment("Assignment7")
+
+dofile("MakeCGL.lua")
+dofile("MakeAssignment8.lua")
+
+print("")
