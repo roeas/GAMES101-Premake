@@ -8,3 +8,5 @@ int
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+
+!Frame/Source/ThirdParty/glew/build
