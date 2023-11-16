@@ -4,7 +4,7 @@
 由 Premake5 构建的 GAMES101 作业框架，只支持 Windows + VS2022。
 
 # 依赖
-先下载并安装 VS2022 与 CMake。
+先下载并安装 VS2022 与 CMake（3.15 或以上的版本）。
 
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
