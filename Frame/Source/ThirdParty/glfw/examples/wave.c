@@ -5,19 +5,23 @@
  * Modified for GLFW by Sylvain Hellegouarch - sh@programmationworld.com
  * Modified for variable frame rate by Marcus Geelnard
  * 2003-Jan-31: Minor cleanups and speedups / MG
- * 2010-10-24: Formatting and cleanup - Camilla Berglund
+ * 2010-10-24: Formatting and cleanup - Camilla Löwy
  *****************************************************************************/
+
+#if defined(_MSC_VER)
+ // Make MS math.h define M_PI
+ #define _USE_MATH_DEFINES
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define GLFW_INCLUDE_GLU
+#include <glad/gl.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#ifndef M_PI
- #define M_PI 3.1415926535897932384626433832795
-#endif
+#include <linmath.h>
 
 // Maximum delta T to allow for differential calculations
 #define MAX_DELTA_T 0.01
@@ -276,7 +280,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     switch (key)
     {
         case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
             break;
         case GLFW_KEY_SPACE:
             init_grid();
@@ -362,6 +366,7 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     float ratio = 1.f;
+    mat4x4 projection;
 
     if (height > 0)
         ratio = (float) width / (float) height;
@@ -371,8 +376,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
     // Change to the projection matrix and set our viewing volume
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, ratio, 1.0, 1024.0);
+    mat4x4_perspective(projection,
+                       60.f * (float) M_PI / 180.f,
+                       ratio,
+                       1.f, 1024.f);
+    glLoadMatrixf((const GLfloat*) projection);
 }
 
 
@@ -405,6 +413,7 @@ int main(int argc, char* argv[])
     glfwSetScrollCallback(window, scroll_callback);
 
     glfwMakeContextCurrent(window);
+    gladLoadGL(glfwGetProcAddress);
     glfwSwapInterval(1);
 
     glfwGetFramebufferSize(window, &width, &height);
@@ -447,6 +456,7 @@ int main(int argc, char* argv[])
         glfwPollEvents();
     }
 
+    glfwTerminate();
     exit(EXIT_SUCCESS);
 }
 

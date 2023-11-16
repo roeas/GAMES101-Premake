@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['window_20handling',['Window handling',['../group__window.html',1,'']]]
+  ['standard_20cursor_20shapes_0',['Standard cursor shapes',['../group__shapes.html',1,'']]]
 ];

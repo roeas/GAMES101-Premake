@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.1 OS X - www.glfw.org
+// GLFW 3.3 macOS - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009-2019 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -24,39 +24,43 @@
 //
 //========================================================================
 
-#ifndef _nsgl_context_h_
-#define _nsgl_context_h_
+// NOTE: Many Cocoa enum values have been renamed and we need to build across
+//       SDK versions where one is unavailable or deprecated.
+//       We use the newer names in code and replace them with the older names if
+//       the base SDK does not provide the newer names.
 
-#define _GLFW_PLATFORM_FBCONFIG
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 101400
+ #define NSOpenGLContextParameterSwapInterval NSOpenGLCPSwapInterval
+ #define NSOpenGLContextParameterSurfaceOpacity NSOpenGLCPSurfaceOpacity
+#endif
+
 #define _GLFW_PLATFORM_CONTEXT_STATE            _GLFWcontextNSGL nsgl
 #define _GLFW_PLATFORM_LIBRARY_CONTEXT_STATE    _GLFWlibraryNSGL nsgl
+
+#include <stdatomic.h>
 
 
 // NSGL-specific per-context data
 //
 typedef struct _GLFWcontextNSGL
 {
-    id           pixelFormat;
-    id	         context;
-
+    id                pixelFormat;
+    id                object;
 } _GLFWcontextNSGL;
-
 
 // NSGL-specific global data
 //
 typedef struct _GLFWlibraryNSGL
 {
     // dlopen handle for OpenGL.framework (for glfwGetProcAddress)
-    void*           framework;
-
+    CFBundleRef     framework;
 } _GLFWlibraryNSGL;
 
 
-int _glfwInitContextAPI(void);
-void _glfwTerminateContextAPI(void);
-int _glfwCreateContext(_GLFWwindow* window,
-                       const _GLFWctxconfig* ctxconfig,
-                       const _GLFWfbconfig* fbconfig);
-void _glfwDestroyContext(_GLFWwindow* window);
+GLFWbool _glfwInitNSGL(void);
+void _glfwTerminateNSGL(void);
+GLFWbool _glfwCreateContextNSGL(_GLFWwindow* window,
+                                const _GLFWctxconfig* ctxconfig,
+                                const _GLFWfbconfig* fbconfig);
+void _glfwDestroyContextNSGL(_GLFWwindow* window);
 
-#endif // _nsgl_context_h_

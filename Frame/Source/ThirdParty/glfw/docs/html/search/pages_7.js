@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['standards_20conformance',['Standards conformance',['../compat.html',1,'']]]
+  ['release_20notes_0',['Release notes',['../news.html',1,'']]]
 ];

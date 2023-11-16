@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['window_20guide',['Window guide',['../window.html',1,'']]]
+  ['standards_20conformance_0',['Standards conformance',['../compat_guide.html',1,'']]]
 ];

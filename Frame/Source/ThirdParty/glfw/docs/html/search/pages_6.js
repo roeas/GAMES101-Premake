@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['oculus_20rift_20guide',['Oculus Rift guide',['../rift.html',1,'']]]
+  ['notitle_0',['notitle',['../index.html',1,'']]]
 ];

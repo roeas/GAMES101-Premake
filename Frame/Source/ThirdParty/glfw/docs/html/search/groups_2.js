@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['initialization_2c_20version_20and_20errors',['Initialization, version and errors',['../group__init.html',1,'']]],
-  ['input_20handling',['Input handling',['../group__input.html',1,'']]]
+  ['gamepad_20axes_0',['Gamepad axes',['../group__gamepad__axes.html',1,'']]],
+  ['gamepad_20buttons_1',['Gamepad buttons',['../group__gamepad__buttons.html',1,'']]]
 ];

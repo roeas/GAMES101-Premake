@@ -1,82 +1,99 @@
 
 link_libraries(glfw)
 
-if (BUILD_SHARED_LIBS)
-    add_definitions(-DGLFW_DLL)
-    link_libraries("${OPENGL_gl_LIBRARY}" "${MATH_LIBRARY}")
-else()
-    link_libraries(${glfw_LIBRARIES})
+include_directories("${GLFW_SOURCE_DIR}/deps")
+
+if (MATH_LIBRARY)
+    link_libraries("${MATH_LIBRARY}")
 endif()
 
-include_directories("${GLFW_SOURCE_DIR}/include"
-                    "${GLFW_SOURCE_DIR}/deps")
-
-if ("${OPENGL_INCLUDE_DIR}")
-    include_directories("${OPENGL_INCLUDE_DIR}")
+# Workaround for the MS CRT deprecating parts of the standard library
+if (MSVC OR CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+set(GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h"
+            "${GLFW_SOURCE_DIR}/deps/glad_gl.c")
+set(GLAD_VULKAN "${GLFW_SOURCE_DIR}/deps/glad/vulkan.h"
+                "${GLFW_SOURCE_DIR}/deps/glad_vulkan.c")
 set(GETOPT "${GLFW_SOURCE_DIR}/deps/getopt.h"
            "${GLFW_SOURCE_DIR}/deps/getopt.c")
 set(TINYCTHREAD "${GLFW_SOURCE_DIR}/deps/tinycthread.h"
                 "${GLFW_SOURCE_DIR}/deps/tinycthread.c")
 
-add_executable(clipboard clipboard.c ${GETOPT})
-add_executable(defaults defaults.c)
-add_executable(events events.c ${GETOPT})
-add_executable(fsaa fsaa.c ${GETOPT})
-add_executable(gamma gamma.c ${GETOPT})
-add_executable(glfwinfo glfwinfo.c ${GETOPT})
-add_executable(iconify iconify.c ${GETOPT})
-add_executable(joysticks joysticks.c)
-add_executable(monitors monitors.c ${GETOPT})
-add_executable(peter peter.c)
-add_executable(reopen reopen.c)
-add_executable(cursor cursor.c)
+if (${CMAKE_VERSION} VERSION_EQUAL "3.1.0" OR
+    ${CMAKE_VERSION} VERSION_GREATER "3.1.0")
+    set(CMAKE_C_STANDARD 99)
+else()
+    # Remove this fallback when removing support for CMake version less than 3.1
+    add_compile_options("$<$<C_COMPILER_ID:AppleClang>:-std=c99>"
+                        "$<$<C_COMPILER_ID:Clang>:-std=c99>"
+                        "$<$<C_COMPILER_ID:GNU>:-std=c99>")
 
-add_executable(cursoranim WIN32 MACOSX_BUNDLE cursoranim.c)
-set_target_properties(cursoranim PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Cursor animation")
+endif()
 
-add_executable(accuracy WIN32 MACOSX_BUNDLE accuracy.c)
-set_target_properties(accuracy PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Accuracy")
+add_executable(clipboard clipboard.c ${GETOPT} ${GLAD_GL})
+add_executable(events events.c ${GETOPT} ${GLAD_GL})
+add_executable(msaa msaa.c ${GETOPT} ${GLAD_GL})
+add_executable(glfwinfo glfwinfo.c ${GETOPT} ${GLAD_GL} ${GLAD_VULKAN})
+add_executable(iconify iconify.c ${GETOPT} ${GLAD_GL})
+add_executable(monitors monitors.c ${GETOPT} ${GLAD_GL})
+add_executable(reopen reopen.c ${GLAD_GL})
+add_executable(cursor cursor.c ${GLAD_GL})
 
-add_executable(empty WIN32 MACOSX_BUNDLE empty.c ${TINYCTHREAD})
-set_target_properties(empty PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Empty Event")
+add_executable(empty WIN32 MACOSX_BUNDLE empty.c ${TINYCTHREAD} ${GLAD_GL})
+add_executable(gamma WIN32 MACOSX_BUNDLE gamma.c ${GLAD_GL})
+add_executable(icon WIN32 MACOSX_BUNDLE icon.c ${GLAD_GL})
+add_executable(inputlag WIN32 MACOSX_BUNDLE inputlag.c ${GETOPT} ${GLAD_GL})
+add_executable(joysticks WIN32 MACOSX_BUNDLE joysticks.c ${GLAD_GL})
+add_executable(opacity WIN32 MACOSX_BUNDLE opacity.c ${GLAD_GL})
+add_executable(tearing WIN32 MACOSX_BUNDLE tearing.c ${GLAD_GL})
+add_executable(threads WIN32 MACOSX_BUNDLE threads.c ${TINYCTHREAD} ${GLAD_GL})
+add_executable(timeout WIN32 MACOSX_BUNDLE timeout.c ${GLAD_GL})
+add_executable(title WIN32 MACOSX_BUNDLE title.c ${GLAD_GL})
+add_executable(triangle-vulkan WIN32 triangle-vulkan.c ${GLAD_VULKAN})
+add_executable(windows WIN32 MACOSX_BUNDLE windows.c ${GETOPT} ${GLAD_GL})
 
-add_executable(sharing WIN32 MACOSX_BUNDLE sharing.c)
-set_target_properties(sharing PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Sharing")
+target_link_libraries(empty "${CMAKE_THREAD_LIBS_INIT}")
+target_link_libraries(threads "${CMAKE_THREAD_LIBS_INIT}")
+if (RT_LIBRARY)
+    target_link_libraries(empty "${RT_LIBRARY}")
+    target_link_libraries(threads "${RT_LIBRARY}")
+endif()
 
-add_executable(tearing WIN32 MACOSX_BUNDLE tearing.c)
-set_target_properties(tearing PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Tearing")
+set(GUI_ONLY_BINARIES empty gamma icon inputlag joysticks opacity tearing
+    threads timeout title triangle-vulkan windows)
+set(CONSOLE_BINARIES clipboard events msaa glfwinfo iconify monitors reopen
+                     cursor)
 
-add_executable(threads WIN32 MACOSX_BUNDLE threads.c ${TINYCTHREAD})
-set_target_properties(threads PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Threads")
-
-add_executable(title WIN32 MACOSX_BUNDLE title.c)
-set_target_properties(title PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Title")
-
-add_executable(windows WIN32 MACOSX_BUNDLE windows.c)
-set_target_properties(windows PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Windows")
-
-target_link_libraries(empty "${CMAKE_THREAD_LIBS_INIT}" "${RT_LIBRARY}")
-target_link_libraries(threads "${CMAKE_THREAD_LIBS_INIT}" "${RT_LIBRARY}")
-
-set(WINDOWS_BINARIES accuracy empty sharing tearing threads title windows cursoranim)
-set(CONSOLE_BINARIES clipboard defaults events fsaa gamma glfwinfo
-                     iconify joysticks monitors peter reopen cursor)
-
-set_target_properties(${WINDOWS_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
+set_target_properties(${GUI_ONLY_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
                       FOLDER "GLFW3/Tests")
 
 if (MSVC)
-    # Tell MSVC to use main instead of WinMain for Windows subsystem executables
-    set_target_properties(${WINDOWS_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
+    # Tell MSVC to use main instead of WinMain
+    set_target_properties(${GUI_ONLY_BINARIES} PROPERTIES
                           LINK_FLAGS "/ENTRY:mainCRTStartup")
+elseif (CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+    # Tell Clang using MS CRT to use main instead of WinMain
+    set_target_properties(${GUI_ONLY_BINARIES} PROPERTIES
+                          LINK_FLAGS "-Wl,/entry:mainCRTStartup")
 endif()
 
 if (APPLE)
-    set_target_properties(${WINDOWS_BINARIES} ${CONSOLE_BINARIES} PROPERTIES
+    set_target_properties(empty PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Empty Event")
+    set_target_properties(gamma PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Gamma")
+    set_target_properties(inputlag PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Input Lag")
+    set_target_properties(joysticks PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Joysticks")
+    set_target_properties(opacity PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Opacity")
+    set_target_properties(tearing PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Tearing")
+    set_target_properties(threads PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Threads")
+    set_target_properties(timeout PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Timeout")
+    set_target_properties(title PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Title")
+    set_target_properties(windows PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Windows")
+
+    set_target_properties(${GUI_ONLY_BINARIES} PROPERTIES
                           MACOSX_BUNDLE_SHORT_VERSION_STRING ${GLFW_VERSION}
-                          MACOSX_BUNDLE_LONG_VERSION_STRING ${GLFW_VERSION_FULL}
-                          MACOSX_BUNDLE_INFO_PLIST "${GLFW_SOURCE_DIR}/CMake/AppleInfo.plist")
+                          MACOSX_BUNDLE_LONG_VERSION_STRING ${GLFW_VERSION}
+                          MACOSX_BUNDLE_INFO_PLIST "${GLFW_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in")
 endif()
 
