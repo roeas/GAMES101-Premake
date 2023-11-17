@@ -121,18 +121,11 @@ int main()
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
         image.convertTo(image, CV_8UC3, 1.0f);
         cv::imshow("image", image);
-        key = cv::waitKey(10);
 
+        angle -= 0.05f;
         std::cout << "frame count: " << frameCount++ << '\n';
 
-        if (key == 'a')
-        {
-            angle += 0.1f;
-        }
-        else if (key == 'd')
-        {
-            angle -= 0.1f;
-        }
+        key = cv::waitKey(10);
     }
 
     return 0;

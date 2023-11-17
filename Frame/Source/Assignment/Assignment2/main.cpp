@@ -120,11 +120,11 @@ int main()
         image.convertTo(image, CV_8UC3, 1.0f);
         cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
         cv::imshow("image", image);
-        key = cv::waitKey(10);
 
         std::cout << "frame count: " << frame_count++ << '\n';
+
+        key = cv::waitKey(10);
     }
 
     return 0;
 }
-// clang-format on

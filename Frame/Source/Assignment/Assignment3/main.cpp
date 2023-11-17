@@ -372,15 +372,10 @@ int main()
 
         cv::imshow("image", std::move(image));
 
+        angle += 2.0f;
+     
         key = cv::waitKey(10);
-        if (key == 'a' )
-        {
-            angle -= 1.0f;
-        }
-        else if (key == 'd')
-        {
-            angle += 1.0f;
-        }
     }
+
     return 0;
 }

@@ -111,8 +111,9 @@ int main()
         }
 
         cv::imshow("Bezier Curve", window);
-        key = cv::waitKey(1);
+
+        key = cv::waitKey(10);
     }
 
-return 0;
+    return 0;
 }
