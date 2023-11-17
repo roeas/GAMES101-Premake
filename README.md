@@ -42,7 +42,7 @@
   - 官方提供的代码有不少问题，如果出现上下/前后颠倒的情况可以参考：[《GAMES101》作业框架问题详解](https://zhuanlan.zhihu.com/p/509902950)
   - 作业之间没有任何关系，在一作业内的修改不会应用到另一作业中，编写时注意区分
   - 修改了一些路径相关的代码以适配框架
-    - 模型位于 `GAMES101-Premake/Frame/Asset/models`
+    - 模型位于 `GAMES101-Premake/Frame/Asset/model`
     - 作业 5、6、7 的输出位于 `GAMES101-Premake/Frame/Asset/output`
   - 魔改了作业 8 及其依赖，待测试
 

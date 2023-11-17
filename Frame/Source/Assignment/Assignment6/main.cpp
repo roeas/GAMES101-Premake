@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 {
     Scene scene(1280, 960);
 
-    MeshTriangle bunny(PathFromAsset("models/bunnyAssignment6/bunny.obj"));
+    MeshTriangle bunny(PathFromAsset("model/bunnyAssignment6/bunny.obj"));
 
     scene.Add(&bunny);
     scene.Add(std::make_unique<Light>(Vector3f(-20, 70, 20), 1));
