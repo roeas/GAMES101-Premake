@@ -4,13 +4,39 @@
 
 #include <cstring>
 
-bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f& v2, const Vector3f& orig,
-                          const Vector3f& dir, float& tnear, float& u, float& v)
+static inline bool IsFloatingPointEqual(float a, float b)
 {
-    // TODO: Implement this function that tests whether the triangle
-    // that's specified bt v0, v1 and v2 intersects with the ray (whose
-    // origin is *orig* and direction is *dir*)
-    // Also don't forget to update tnear, u and v.
+    return std::fabs(a - b) < 0.00001f;
+}
+
+bool rayTriangleIntersect(
+    const Vector3f& v0, const Vector3f& v1, const Vector3f& v2,
+    const Vector3f& orig, const Vector3f& dir,
+    float& tnear, float& u, float& v)
+{
+    Vector3f E1 = v1 - v0;
+    Vector3f E2 = v2 - v0;
+    Vector3f S = orig - v0;
+    Vector3f S1 = crossProduct(dir, E2);
+    Vector3f S2 = crossProduct(S, E1);
+
+    float S1E1_inverse = 1.0f / dotProduct(S1, E1);
+    float t = dotProduct(S2, E2) * S1E1_inverse;
+    float b1 = dotProduct(S1, S) * S1E1_inverse;
+    float b2 = dotProduct(S2, dir) * S1E1_inverse;
+    float b0 = 1.0f - b1 - b2;
+    
+    if (t >= 0.0f &&
+        b0 >= 0.0f && b0 <= 1.0f &&
+        b1 >= 0.0f && b1 <= 1.0f &&
+        b2 >= 0.0f && b2 <= 1.0f)
+    {
+        tnear = t;
+        u = b1;
+        v = b2;
+        return true;
+    }
+    
     return false;
 }
 

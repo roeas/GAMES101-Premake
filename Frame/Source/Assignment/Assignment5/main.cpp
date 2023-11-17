@@ -11,26 +11,26 @@ int main()
 {
     Scene scene(1280, 960);
 
-    auto sph1 = std::make_unique<Sphere>(Vector3f(-1, 0, -12), 2);
+    auto sph1 = std::make_unique<Sphere>(Vector3f(-1.0f, 0.0f, -12.0f), 2.0f);
     sph1->materialType = DIFFUSE_AND_GLOSSY;
-    sph1->diffuseColor = Vector3f(0.6, 0.7, 0.8);
+    sph1->diffuseColor = Vector3f(0.6f, 0.7f, 0.8f);
 
-    auto sph2 = std::make_unique<Sphere>(Vector3f(0.5, -0.5, -8), 1.5);
-    sph2->ior = 1.5;
+    auto sph2 = std::make_unique<Sphere>(Vector3f(0.5f, -0.5f, -8.0f), 1.5f);
+    sph2->ior = 1.5f;
     sph2->materialType = REFLECTION_AND_REFRACTION;
 
     scene.Add(std::move(sph1));
     scene.Add(std::move(sph2));
 
-    Vector3f verts[4] = {{-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16}};
-    uint32_t vertIndex[6] = {0, 1, 3, 1, 2, 3};
-    Vector2f st[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    Vector3f verts[4] = { {-5.0f,-3.0f,-6.0f}, {5.0f,-3.0f,-6.0f}, {5.0f,-3.0f,-16.0f}, {-5.0f,-3.0f,-16.0f} };
+    uint32_t vertIndex[6] = { 0, 1, 3, 1, 2, 3 };
+    Vector2f st[4] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
     auto mesh = std::make_unique<MeshTriangle>(verts, vertIndex, 2, st);
     mesh->materialType = DIFFUSE_AND_GLOSSY;
 
     scene.Add(std::move(mesh));
-    scene.Add(std::make_unique<Light>(Vector3f(-20, 70, 20), 0.5));
-    scene.Add(std::make_unique<Light>(Vector3f(30, 50, -12), 0.5));    
+    scene.Add(std::make_unique<Light>(Vector3f(-20.0f, 70.0f, 20.0f), 0.5f));
+    scene.Add(std::make_unique<Light>(Vector3f(30.0f, 50.0f, -12.0f), 0.5f));
 
     Renderer r;
     r.Render(scene);
