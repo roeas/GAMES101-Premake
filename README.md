@@ -34,8 +34,6 @@
 
 使用 `git checkout main` 切换回主分支，`git stash pop` 还原你的修改
 
-每次切换 branch 都需要重新运行 `Setup.bat`
-
 # 其他
 - 框架相关
   - 文档位于 `GAMES101-Premake/Document`
