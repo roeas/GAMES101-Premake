@@ -27,70 +27,137 @@ BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
 
 BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 {
-    BVHBuildNode* node = new BVHBuildNode();
+    BVHBuildNode* pNode = new BVHBuildNode();
 
-    // Compute bounds of all primitives in BVH node
+    // 所有物体的包围盒集合。
     Bounds3 bounds;
     for (int i = 0; i < objects.size(); ++i)
+    {
         bounds = Union(bounds, objects[i]->getBounds());
-    if (objects.size() == 1) {
-        // Create leaf _BVHBuildNode_
-        node->bounds = objects[0]->getBounds();
-        node->object = objects[0];
-        node->left = nullptr;
-        node->right = nullptr;
-        return node;
     }
-    else if (objects.size() == 2) {
-        node->left = recursiveBuild(std::vector{objects[0]});
-        node->right = recursiveBuild(std::vector{objects[1]});
 
-        node->bounds = Union(node->left->bounds, node->right->bounds);
-        return node;
+    // 只存在一个物体，建立叶节点。
+    if (objects.size() == 1)
+    {
+        pNode->bounds = objects[0]->getBounds();
+        pNode->object = objects[0];
+        pNode->left = nullptr;
+        pNode->right = nullptr;
+
+        return pNode;
     }
-    else {
+    // 存在两个物体，建立其 left 和 right 叶节点。
+    else if (objects.size() == 2)
+    {
+        pNode->left = recursiveBuild(std::vector{ objects[0] });
+        pNode->right = recursiveBuild(std::vector{ objects[1] });
+        pNode->bounds = Union(pNode->left->bounds, pNode->right->bounds);
+
+        return pNode;
+    }
+    else
+    {
+        // 由所有物体的质心组成的包围盒。
         Bounds3 centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
-            centroidBounds =
-                Union(centroidBounds, objects[i]->getBounds().Centroid());
-        int dim = centroidBounds.maxExtent();
-        switch (dim) {
+        {
+            centroidBounds = Union(centroidBounds, objects[i]->getBounds().Centroid());
+        }
+
+        // 最长的维度。
+        switch (centroidBounds.maxExtent())
+        {
         case 0:
-            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2) {
-                return f1->getBounds().Centroid().x <
-                       f2->getBounds().Centroid().x;
+            // X 轴。
+            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
+            {
+                // 将所有物体按照其包围盒的质心的 X 轴排序，Y 轴和 Z 轴的 case 同理。
+                return f1->getBounds().Centroid().x < f2->getBounds().Centroid().x;
             });
             break;
         case 1:
-            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2) {
-                return f1->getBounds().Centroid().y <
-                       f2->getBounds().Centroid().y;
+            // Y 轴。
+            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
+            {
+                return f1->getBounds().Centroid().y < f2->getBounds().Centroid().y;
             });
             break;
         case 2:
-            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2) {
-                return f1->getBounds().Centroid().z <
-                       f2->getBounds().Centroid().z;
+            // Z 轴。
+            std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
+            {
+                return f1->getBounds().Centroid().z < f2->getBounds().Centroid().z;
             });
             break;
         }
 
-        auto beginning = objects.begin();
-        auto middling = objects.begin() + (objects.size() / 2);
-        auto ending = objects.end();
+        const auto &begin = objects.begin();
+        const auto &end = objects.end();
 
-        auto leftshapes = std::vector<Object*>(beginning, middling);
-        auto rightshapes = std::vector<Object*>(middling, ending);
+#define ENABLE_SAH 1
 
-        assert(objects.size() == (leftshapes.size() + rightshapes.size()));
+#if ENABLE_SAH
 
-        node->left = recursiveBuild(leftshapes);
-        node->right = recursiveBuild(rightshapes);
+        // 一份比较清晰的 SAH 介绍：https://zhuanlan.zhihu.com/p/50720158
 
-        node->bounds = Union(node->left->bounds, node->right->bounds);
+        // 划分方式的总数。
+        constexpr uint8_t SlashCount = 8;
+        constexpr float SlashCountInv = 1.0f / static_cast<float>(SlashCount);
+        const float SC = centroidBounds.SurfaceArea();
+
+        // 用于记录最优的划分方式。
+        uint8_t minCostIndex = SlashCount / 2;
+        float minCost = std::numeric_limits<float>::infinity();
+
+        for (uint8_t index = 1; index < SlashCount; ++index)
+        {
+            const auto &target = objects.begin() + (objects.size() * index * SlashCountInv);
+            auto leftObjects = std::vector<Object *>(begin, target);
+            auto rightObjects = std::vector<Object *>(target, end);
+
+            // 分别计算划分之后两部分包围盒的表面积。
+            Bounds3 leftBounds, rightBounds;
+            for (const auto &obj : leftObjects)
+            {
+                leftBounds = Union(leftBounds, obj->getBounds().Centroid());
+            }
+            for (const auto &obj : rightObjects)
+            {
+                rightBounds = Union(rightBounds, obj->getBounds().Centroid());
+            }
+
+            float SA = leftBounds.SurfaceArea();
+            float SB = rightBounds.SurfaceArea();
+            float a = leftObjects.size();
+            float b = rightObjects.size();
+            float cost = (SA * a + SB * b) / SC + 0.125f;
+
+            if (cost < minCost)
+            {
+                // 更新更优的划分方式。
+                minCost = cost;
+                minCostIndex = index;
+            }
+        }
+
+        const auto &target = objects.begin() + (objects.size() * minCostIndex * SlashCountInv);
+
+#else // ENABLE_SAH
+
+        // 基本的 BVH 划分方式，按数量从中间一分为二。
+        const auto &target = objects.begin() + (objects.size() / 2);
+
+#endif // ENABLE_SAH
+
+        auto leftObjects = std::vector<Object *>(begin, target);
+        auto rightObjects = std::vector<Object *>(target, end);
+
+        pNode->left = recursiveBuild(leftObjects);
+        pNode->right = recursiveBuild(rightObjects);
+        pNode->bounds = Union(pNode->left->bounds, pNode->right->bounds);
     }
 
-    return node;
+    return pNode;
 }
 
 Intersection BVHAccel::Intersect(const Ray& ray) const

@@ -210,34 +210,52 @@ inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
 inline Intersection Triangle::getIntersection(Ray ray)
 {
+    // 光纤位于三角形的背面
+    if (dotProduct(ray.direction, normal) > 0)
+    {
+        return Intersection{};
+    }
+
+    Vector3f S1 = crossProduct(ray.direction, e2);
+    double denominator = dotProduct(S1, e1);
+    if (fabs(denominator) < EPSILON)
+    {
+        return Intersection{};
+    }
+
+    double inv = 1.0 / denominator;
+    Vector3f S = ray.origin - v0;
+    
+    double b1, b2, t = 0.0;
+
+    b1 = dotProduct(S1, S) * inv;
+    if (b1 < 0.0 || b1 > 1.0)
+    {
+        return Intersection{};
+    }
+
+    Vector3f S2 = crossProduct(S, e1);
+    b2 = dotProduct(S2, ray.direction) * inv;
+    double b0 = 1.0 - b1 - b2;
+    if (b2 < 0.0 || b2 > 1.0 || b0 < 0.0 || b0 > 1.0)
+    {
+        return Intersection{};
+    }
+
+    t = dotProduct(S2, e2) * inv;
+    if (t < 0)
+    {
+        return Intersection{};
+    }
+
     Intersection inter;
 
-    if (dotProduct(ray.direction, normal) > 0)
-        return inter;
-    double u, v, t_tmp = 0;
-    Vector3f pvec = crossProduct(ray.direction, e2);
-    double det = dotProduct(e1, pvec);
-    if (fabs(det) < EPSILON)
-        return inter;
-    double det_inv = 1. / det;
-    Vector3f tvec = ray.origin - v0;
-    u = dotProduct(tvec, pvec) * det_inv;
-    if (u < 0 || u > 1)
-        return inter;
-    Vector3f qvec = crossProduct(tvec, e1);
-    v = dotProduct(ray.direction, qvec) * det_inv;
-    if (v < 0 || u + v > 1)
-        return inter;
-    t_tmp = dotProduct(e2, qvec) * det_inv;
-    if (t_tmp < 0)
-        return inter;
-
-    inter.distance = t_tmp;
     inter.happened = true;
-    inter.m = m;
-    inter.obj = this;
+    inter.coords = ray(t);
     inter.normal = normal;
-    inter.coords = ray(t_tmp);
+    inter.distance = t;
+    inter.obj = this;
+    inter.m = m;
 
     return inter;
 }
