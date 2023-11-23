@@ -114,27 +114,19 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
                 // [/comment]
                 for (uint32_t i = 0; i < get_lights().size(); ++i)
                 {
-                    auto area_ptr = dynamic_cast<AreaLight*>(this->get_lights()[i].get());
-                    if (area_ptr)
-                    {
-                        // Do nothing for this assignment
-                    }
-                    else
-                    {
-                        Vector3f lightDir = get_lights()[i]->position - hitPoint;
-                        // square of the distance between hitPoint and the light
-                        float lightDistance2 = dotProduct(lightDir, lightDir);
-                        lightDir = normalize(lightDir);
-                        float LdotN = std::max(0.f, dotProduct(lightDir, N));
-                        Object *shadowHitObject = nullptr;
-                        float tNearShadow = kInfinity;
-                        // is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
-                        bool inShadow = bvh->Intersect(Ray(shadowPointOrig, lightDir)).happened;
-                        lightAmt += (1 - inShadow) * get_lights()[i]->intensity * LdotN;
-                        Vector3f reflectionDirection = reflect(-lightDir, N);
-                        specularColor += powf(std::max(0.f, -dotProduct(reflectionDirection, ray.direction)),
-                                              m->specularExponent) * get_lights()[i]->intensity;
-                    }
+                    Vector3f lightDir = get_lights()[i]->position - hitPoint;
+                    // square of the distance between hitPoint and the light
+                    float lightDistance2 = dotProduct(lightDir, lightDir);
+                    lightDir = normalize(lightDir);
+                    float LdotN = std::max(0.f, dotProduct(lightDir, N));
+                    Object *shadowHitObject = nullptr;
+                    float tNearShadow = kInfinity;
+                    // is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
+                    bool inShadow = bvh->Intersect(Ray(shadowPointOrig, lightDir)).happened;
+                    lightAmt += (1 - inShadow) * get_lights()[i]->intensity * LdotN;
+                    Vector3f reflectionDirection = reflect(-lightDir, N);
+                    specularColor += powf(std::max(0.f, -dotProduct(reflectionDirection, ray.direction)),
+                        m->specularExponent) * get_lights()[i]->intensity;
                 }
                 hitColor = lightAmt * (hitObject->evalDiffuseColor(st) * m->Kd + specularColor * m->Ks);
                 break;
