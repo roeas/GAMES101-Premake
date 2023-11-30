@@ -210,9 +210,9 @@ inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
 inline Intersection Triangle::getIntersection(Ray ray)
 {
-    // 光纤位于三角形的背面
     if (dotProduct(ray.direction, normal) > 0)
     {
+        // 光线与三角形背面相交。
         return Intersection{};
     }
 
