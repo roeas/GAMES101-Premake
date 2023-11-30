@@ -323,7 +323,7 @@ int main()
 {
     objl::Loader Loader;
     std::vector<Triangle *> TriangleList;
-    Loader.LoadFile(PathFromAsset("model/spot/spot_triangulated_good.obj"));
+    Loader.LoadFile(Utils::PathFromAsset("model/spot/spot_triangulated_good.obj"));
     for(auto &mesh : Loader.LoadedMeshes)
     {
         for(int i = 0; i < mesh.Vertices.size(); i += 3)
@@ -355,7 +355,7 @@ int main()
 
     // spot_texture.png
     // hmap.jpg
-    r.set_texture(Texture(PathFromAsset("model/spot/spot_texture.png")));
+    r.set_texture(Texture(Utils::PathFromAsset("model/spot/spot_texture.png")));
 
     while(key != 27)
     {
