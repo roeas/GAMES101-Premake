@@ -27,12 +27,12 @@ int main(int argc, char** argv)
     Material* light = new Material(DIFFUSE, (8.0f * Vector3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vector3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vector3f(0.737f+0.642f,0.737f+0.159f,0.737f)));
     light->Kd = Vector3f(0.65f);
 
-    MeshTriangle floor(PathFromAsset("model/cornellbox/floor.obj"), white);
-    MeshTriangle shortbox(PathFromAsset("model/cornellbox/shortbox.obj"), white);
-    MeshTriangle tallbox(PathFromAsset("model/cornellbox/tallbox.obj"), white);
-    MeshTriangle left(PathFromAsset("model/cornellbox/left.obj"), red);
-    MeshTriangle right(PathFromAsset("model/cornellbox/right.obj"), green);
-    MeshTriangle light_(PathFromAsset("model/cornellbox/light.obj"), light);
+    MeshTriangle floor(Utils::PathFromAsset("model/cornellbox/floor.obj"), white);
+    MeshTriangle shortbox(Utils::PathFromAsset("model/cornellbox/shortbox.obj"), white);
+    MeshTriangle tallbox(Utils::PathFromAsset("model/cornellbox/tallbox.obj"), white);
+    MeshTriangle left(Utils::PathFromAsset("model/cornellbox/left.obj"), red);
+    MeshTriangle right(Utils::PathFromAsset("model/cornellbox/right.obj"), green);
+    MeshTriangle light_(Utils::PathFromAsset("model/cornellbox/light.obj"), light);
 
     scene.Add(&floor);
     scene.Add(&shortbox);

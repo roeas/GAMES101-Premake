@@ -45,7 +45,7 @@ void Renderer::Render(const Scene& scene)
     UpdateProgress(1.f);
 
     // save framebuffer to file
-    std::string outputPath = PathFromAsset("output/assigment7.ppm");
+    std::string outputPath = Utils::PathFromAsset("output/assigment7.ppm");
     FILE* fp = fopen(outputPath.c_str(), "wb");
     (void)fprintf(fp, "P6\n%d %d\n255\n", scene.width, scene.height);
     for (auto i = 0; i < scene.height * scene.width; ++i) {

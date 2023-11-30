@@ -253,7 +253,7 @@ int main(int argc, const char** argv)
     objl::Loader Loader;
 
     // Load .obj File
-    bool loadout = Loader.LoadFile(PathFromAsset("model/spot/spot_triangulated_good.obj"));
+    bool loadout = Loader.LoadFile(Utils::PathFromAsset("model/spot/spot_triangulated_good.obj"));
     for(auto mesh:Loader.LoadedMeshes)
     {
         for(int i=0;i<mesh.Vertices.size();i+=3)
@@ -271,7 +271,7 @@ int main(int argc, const char** argv)
 
     rst::rasterizer r(700, 700);
 
-    r.set_texture(Texture(PathFromAsset("model/spot/hmap.jpg")));
+    r.set_texture(Texture(Utils::PathFromAsset("model/spot/hmap.jpg")));
     std::function<Eigen::Vector3f(fragment_shader_payload)> active_shader = phong_fragment_shader;
 
     if (argc >= 2)
@@ -283,7 +283,7 @@ int main(int argc, const char** argv)
         {
             std::cout << "Rasterizing using the texture shader\n";
             active_shader = texture_fragment_shader;
-            r.set_texture(Texture(PathFromAsset("model/spot/spot_texture.png")));
+            r.set_texture(Texture(Utils::PathFromAsset("model/spot/spot_texture.png")));
         }
         else if (argc == 3 && std::string(argv[2]) == "normal")
         {
