@@ -84,12 +84,12 @@ class Bounds3
         return (i == 0) ? pMin : pMax;
     }
 
-    inline bool IntersectP(const Ray& ray, const Vector3f& invDir, const std::array<int, 3>& dirisNeg) const;
+    inline bool IntersectP(const Ray& ray, const Vector3f& invDir, const std::array<bool, 3>& dirisNeg) const;
 };
 
 
 
-inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir, const std::array<int, 3>& dirIsNeg) const
+inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir, const std::array<bool, 3>& dirIsNeg) const
 {
     float min_x = (pMin.x - ray.origin.x) * invDir[0];
     float max_x = (pMax.x - ray.origin.x) * invDir[0];

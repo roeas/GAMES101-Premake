@@ -33,8 +33,9 @@ public:
     { return Vector3f(v.x * r, v.y * r, v.z * r); }
     friend std::ostream & operator << (std::ostream &os, const Vector3f &v)
     { return os << v.x << ", " << v.y << ", " << v.z; }
-    double       operator[](int index) const;
-    double&      operator[](int index);
+
+    float operator[](int index) const;
+    float &operator[](int index);
 
 
     static Vector3f Min(const Vector3f &p1, const Vector3f &p2) {
@@ -47,10 +48,16 @@ public:
                        std::max(p1.z, p2.z));
     }
 };
-inline double Vector3f::operator[](int index) const {
+inline float Vector3f::operator[](int index) const
+{
     return (&x)[index];
 }
 
+// 乐了，别光声明不写实现啊 GAMES，还有这个 用 double 返回 float 成员变量什么鬼。
+inline float &Vector3f::operator[](int index)
+{
+    return (&x)[index];
+}
 
 class Vector2f
 {

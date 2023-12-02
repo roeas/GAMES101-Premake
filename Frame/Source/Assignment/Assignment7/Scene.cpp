@@ -4,6 +4,7 @@
 
 #include "Scene.hpp"
 
+#include "Utils.hpp"
 
 void Scene::buildBVH() {
     printf(" - Generating BVH...\n\n");
@@ -60,66 +61,64 @@ bool Scene::trace(
 // Implementation of Path Tracing
 Vector3f Scene::castRay(const Ray &ray, int depth) const
 {
-    Intersection p_inter = intersect(ray);
-    if (!p_inter.happened)
+    Vector3f L_dir;
+    Vector3f L_indir;
+
+    // 从像素发出的光线与物体的交点
+    Intersection obj_inter = intersect(ray);
+    if (!obj_inter.happened)
+        return L_dir;
+
+    // 打到光源
+    if (obj_inter.m->hasEmission())
+        return obj_inter.m->getEmission();
+
+    // 打到物体
+    Vector3f p = obj_inter.coords;
+    Material *m = obj_inter.m;
+    Vector3f N = obj_inter.normal.normalized();
+    Vector3f wo = ray.direction; // 像素到物体的向量
+
+    // 有交点，对光源采样
+    float pdf_L = 1.0; //可以不初始化
+    Intersection light_inter;
+    sampleLight(light_inter, pdf_L);    // 得到光源位置和对光源采样的pdf
+
+    Vector3f x = light_inter.coords;
+    Vector3f ws = (x - p).normalized(); //物体到光源
+    Vector3f NN = light_inter.normal.normalized();
+    Vector3f emit = light_inter.emit;
+    float d = (x - p).norm();
+
+    // 再次从光源发出一条光线，判断是否能打到该物体，即中间是否有阻挡
+    Ray Obj2Light(p, ws);
+    float d2 = intersect(Obj2Light).distance;
+    // 是否阻挡，利用距离判断，需注意浮点数的处理
+    if (d2 - d > -0.001)
+    // if(Utils::FloatEqual(d2, d))
     {
-        return Vector3f();
-    }
-    if (p_inter.m->hasEmission())
-    {
-        return p_inter.m->getEmission();
-    }
-
-    float EPLISON = 0.0001;
-    Vector3f l_dir;
-    Vector3f l_indir;
-
-    // sampleLight(inter, pdf_light)
-    Intersection x_inter;
-    float pdf_light = 0.0f;
-    sampleLight(x_inter, pdf_light);
-
-    // Get x, ws, NN, emit from inter
-    Vector3f p = p_inter.coords;
-    Vector3f x = x_inter.coords;
-    Vector3f ws_dir = (x - p).normalized();
-    float ws_distance = (x - p).norm();
-    Vector3f N = p_inter.normal.normalized();
-    Vector3f NN = x_inter.normal.normalized();
-    Vector3f emit = x_inter.emit;
-
-    // Shoot a ray from p to x
-    Ray ws_ray(p, ws_dir);
-    Intersection ws_ray_inter = intersect(ws_ray);
-    // If the ray is not blocked in the middle
-    if (ws_ray_inter.distance - ws_distance > -EPLISON)
-    {
-        l_dir = emit * p_inter.m->eval(ray.direction, ws_ray.direction, N)
-            * dotProduct(ws_ray.direction, N)
-            * dotProduct(-ws_ray.direction, NN)
-            / std::pow(ws_distance, 2)
-            / pdf_light;
-    }
-
-    // Test Russian Roulette with probability RussianRoulette
-    if (get_random_float() > RussianRoulette)
-    {
-        return l_dir;
+        Vector3f eval = m->eval(wo, ws, N); // wo不会用到
+        float cos_theta = dotProduct(N, ws);
+        float cos_theta_x = dotProduct(NN, -ws);//ws从物体指向光源，与NN的夹角大于180
+        L_dir = emit * eval * cos_theta * cos_theta_x / std::pow(d, 2) / pdf_L;
     }
 
-    l_indir = 0.0;
-
-    Vector3f wi_dir = p_inter.m->sample(ray.direction, N).normalized();
-    Ray wi_ray(p_inter.coords, wi_dir);
-    // If ray r hit a non-emitting object at q
-    Intersection wi_inter = intersect(wi_ray);
-    if (wi_inter.happened && (!wi_inter.m->hasEmission()))
+    // L_indir
+    float P_RR = get_random_float();
+    if (P_RR < RussianRoulette)
     {
-        l_indir = castRay(wi_ray, depth + 1) * p_inter.m->eval(ray.direction, wi_ray.direction, N)
-            * dotProduct(wi_ray.direction, N)
-            / p_inter.m->pdf(ray.direction, wi_ray.direction, N)
-            / RussianRoulette;
+        Vector3f wi = m->sample(wo, N).normalized();
+        Ray r(p, wi);
+        Intersection inter = intersect(r);
+        // 判断打到的物体是否会发光取决于m
+        if (inter.happened && !inter.m->hasEmission())
+        {
+            Vector3f eval = m->eval(wo, wi, N);
+            float pdf_O = m->pdf(wo, wi, N);
+            float cos_theta = dotProduct(wi, N);
+            L_indir = castRay(r, depth + 1) * eval * cos_theta / pdf_O / RussianRoulette;
+        }
     }
-
-    return l_dir + l_indir;
+    //4->16min
+    return L_dir + L_indir;
 }

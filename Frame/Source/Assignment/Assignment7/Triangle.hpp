@@ -231,9 +231,9 @@ inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
 inline Intersection Triangle::getIntersection(Ray ray)
 {
-    if (dotProduct(ray.direction, normal) > 0)
+    if (dotProduct(ray.direction, normal) > 0.0f)
     {
-        // 光线与三角形背面相交。
+        // 光源位于三角形背面。
         return Intersection{};
     }
 
