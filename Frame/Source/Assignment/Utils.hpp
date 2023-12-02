@@ -1,11 +1,16 @@
 #pragma once
 
 #include <cfloat>
-#include <string>
 #include <filesystem>
+#include <string>
 
 namespace Utils
 {
+
+inline std::string PathFromRoot(std::string relativePath)
+{
+    return (std::filesystem::path(FRAME_ROOT_PATH) / std::move(relativePath)).generic_string();
+}
 
 inline std::string PathFromAsset(std::string relativePath)
 {

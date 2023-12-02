@@ -23,6 +23,7 @@ function MakeAssignment(projectName)
 		
 		-- Set definitions.
 		defines {
+			"FRAME_ROOT_PATH=\""..RootPath.."\"",
 			"FRAME_ASSET_PATH=\""..AssetPath.."\"",
 		}
 		
