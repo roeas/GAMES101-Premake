@@ -237,16 +237,24 @@ inline Intersection Triangle::getIntersection(Ray ray)
         return Intersection{};
     }
 
-    Vector3f S1 = crossProduct(ray.direction, e2);
-    double denominator = dotProduct(S1, e1);
+    // E1, E2 在 Triangle 的构造函数中已经赋好值了。
+    Vector3f E1 = e1;
+    Vector3f E2 = e2;
+    Vector3f D = ray.direction;
+    Vector3f O = ray.origin;
+    Vector3f P0 = v0;
+    Vector3f P1 = v1;
+    Vector3f P2 = v2;
+
+    Vector3f S1 = crossProduct(D, E2);
+    double denominator = dotProduct(S1, E1);
     if (fabs(denominator) < EPSILON)
     {
         return Intersection{};
     }
 
     double inv = 1.0 / denominator;
-    Vector3f S = ray.origin - v0;
-
+    Vector3f S = O - P0;
     double b1, b2, t = 0.0;
 
     b1 = dotProduct(S1, S) * inv;
@@ -255,22 +263,26 @@ inline Intersection Triangle::getIntersection(Ray ray)
         return Intersection{};
     }
 
-    Vector3f S2 = crossProduct(S, e1);
-    b2 = dotProduct(S2, ray.direction) * inv;
-    double b0 = 1.0 - b1 - b2;
-    if (b2 < 0.0 || b2 > 1.0 || b0 < 0.0 || b0 > 1.0)
+    Vector3f S2 = crossProduct(S, E1);
+    b2 = dotProduct(S2, D) * inv;
+    if (b2 < 0.0 || b2 > 1.0)
     {
         return Intersection{};
     }
 
-    t = dotProduct(S2, e2) * inv;
-    if (t < 0)
+    double b0 = 1.0 - b1 - b2;
+    if (b0 < 0.0 || b0 > 1.0)
+    {
+        return Intersection{};
+    }
+
+    t = dotProduct(S2, E2) * inv;
+    if (t < 0.0)
     {
         return Intersection{};
     }
 
     Intersection inter;
-
     inter.happened = true;
     inter.coords = ray(t);
     inter.normal = normal;

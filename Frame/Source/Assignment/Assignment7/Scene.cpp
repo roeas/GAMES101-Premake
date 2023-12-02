@@ -18,6 +18,7 @@ Intersection Scene::intersect(const Ray &ray) const
 
 void Scene::sampleLight(Intersection &pos, float &pdf) const
 {
+    // 这他妈到底是什么？
     float emit_area_sum = 0;
     for (uint32_t k = 0; k < objects.size(); ++k) {
         if (objects[k]->hasEmit()){
@@ -61,63 +62,65 @@ bool Scene::trace(
 // Implementation of Path Tracing
 Vector3f Scene::castRay(const Ray &ray, int depth) const
 {
-    Vector3f L_dir;
-    Vector3f L_indir;
+    Vector3f lightDirect{ 0.0f, 0.0f , 0.0f };
+    Vector3f lightEnvironment{ 0.0f, 0.0f , 0.0f };
+    Intersection inter = intersect(ray);
 
-    // 从像素发出的光线与物体的交点
-    Intersection obj_inter = intersect(ray);
-    if (!obj_inter.happened)
-        return L_dir;
-
-    // 打到光源
-    if (obj_inter.m->hasEmission())
-        return obj_inter.m->getEmission();
-
-    // 打到物体
-    Vector3f p = obj_inter.coords;
-    Material *m = obj_inter.m;
-    Vector3f N = obj_inter.normal.normalized();
-    Vector3f wo = ray.direction; // 像素到物体的向量
-
-    // 有交点，对光源采样
-    float pdf_L = 1.0; //可以不初始化
-    Intersection light_inter;
-    sampleLight(light_inter, pdf_L);    // 得到光源位置和对光源采样的pdf
-
-    Vector3f x = light_inter.coords;
-    Vector3f ws = (x - p).normalized(); //物体到光源
-    Vector3f NN = light_inter.normal.normalized();
-    Vector3f emit = light_inter.emit;
-    float d = (x - p).norm();
-
-    // 再次从光源发出一条光线，判断是否能打到该物体，即中间是否有阻挡
-    Ray Obj2Light(p, ws);
-    float d2 = intersect(Obj2Light).distance;
-    // 是否阻挡，利用距离判断，需注意浮点数的处理
-    if(Utils::FloatEqual(d2, d, 0.0001f))
+    if (!inter.happened)
     {
-        Vector3f eval = m->eval(wo, ws, N); // wo不会用到
-        float cos_theta = dotProduct(N, ws);
-        float cos_theta_x = dotProduct(NN, -ws);//ws从物体指向光源，与NN的夹角大于180
-        L_dir = emit * eval * cos_theta * cos_theta_x / std::pow(d, 2) / pdf_L;
+        // 射线不与场景相交。
+        return Vector3f{ 0.0f, 0.0f , 0.0f };
     }
 
-    // L_indir
-    float P_RR = get_random_float();
-    if (P_RR < RussianRoulette)
+    if (inter.m->hasEmission())
     {
-        Vector3f wi = m->sample(wo, N).normalized();
-        Ray r(p, wi);
-        Intersection inter = intersect(r);
-        // 判断打到的物体是否会发光取决于m
-        if (inter.happened && !inter.m->hasEmission())
+        // 射线与光源相交。
+        return inter.m->getEmission();
+    }
+
+    // 1. 直接光
+    float pdfLight;
+    Intersection interLight;
+    sampleLight(interLight, pdfLight);
+
+    Vector3f rayDir = ray.direction;
+    Material *material = inter.m;
+    Vector3f normal = inter.normal.normalized();
+
+    Vector3f position = inter.coords;
+    Vector3f positionLight = interLight.coords;
+    Vector3f lightDir = (positionLight - position).normalized();
+    float distanceToLight = (positionLight - position).norm();
+    float distanceToInter = intersect(Ray{ position, lightDir }).distance;
+
+    // 这里有点抽象，EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
+    if(Utils::FloatEqual(distanceToInter, distanceToLight, 0.0001f))
+    {
+        // 着色点与光源之间无阻挡。
+        Vector3f brdfLight = material->eval(rayDir, lightDir, normal);
+        float NdotL = dotProduct(normal, lightDir);
+        float NdotL_Light = dotProduct(interLight.normal.normalized(), -lightDir);
+        lightDirect = interLight.emit * brdfLight * NdotL * NdotL_Light / std::pow(distanceToLight, 2) / pdfLight;
+    }
+
+    // 2. 间接光
+    if (get_random_float() < RussianRoulette)
+    {
+        // Material::sample 通过入射角，法线和材质返回一条出射光线。
+        Vector3f rayDirOut = material->sample(rayDir, normal).normalized();
+        Ray rayOut(position, rayDirOut);
+        Intersection interNext = intersect(rayOut);
+
+        if (interNext.happened && !interNext.m->hasEmission())
         {
-            Vector3f eval = m->eval(wo, wi, N);
-            float pdf_O = m->pdf(wo, wi, N);
-            float cos_theta = dotProduct(wi, N);
-            L_indir = castRay(r, depth + 1) * eval * cos_theta / pdf_O / RussianRoulette;
+            // 下一条射线未命中场景则停止递归。
+            // 击中光源也停止递归，因为光源的直接贡献已经在直接光的部分计算过了。
+            Vector3f brdfNext = material->eval(rayDir, rayDirOut, normal);
+            float pdfNext = material->pdf(rayDir, rayDirOut, normal);
+            float cosTheta = dotProduct(rayDirOut, normal);
+            lightEnvironment = castRay(rayOut, depth + 1) * brdfNext * cosTheta / pdfNext / RussianRoulette;
         }
     }
-    //4->16min
-    return L_dir + L_indir;
+
+    return lightDirect + lightEnvironment;
 }

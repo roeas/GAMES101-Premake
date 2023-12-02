@@ -108,9 +108,9 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     std::array<bool, 3> dirIsNeg{
-        ray.direction.x < 0,
-        ray.direction.y < 0,
-        ray.direction.z < 0
+        ray.direction.x < 0.0f,
+        ray.direction.y < 0.0f,
+        ray.direction.z < 0.0f
     };
     if (!node->bounds.IntersectP(ray, ray.direction_inv, std::move(dirIsNeg)))
     {
