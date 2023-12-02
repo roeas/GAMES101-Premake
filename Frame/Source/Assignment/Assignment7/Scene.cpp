@@ -94,8 +94,7 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     Ray Obj2Light(p, ws);
     float d2 = intersect(Obj2Light).distance;
     // 是否阻挡，利用距离判断，需注意浮点数的处理
-    if (d2 - d > -0.001)
-    // if(Utils::FloatEqual(d2, d))
+    if(Utils::FloatEqual(d2, d, 0.0001f))
     {
         Vector3f eval = m->eval(wo, ws, N); // wo不会用到
         float cos_theta = dotProduct(N, ws);
