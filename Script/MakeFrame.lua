@@ -82,6 +82,11 @@ function MakeAssignment(projectName)
 			runtime("Release") -- /MT
 		filter {}
 		
+		-- OMP
+		if(projectName == "Assignment7") then
+			openmp("On")
+		end
+		
 		-- Disable these options can reduce the size of compiled binaries.
 		justmycode("Off")
 		editAndContinue("Off")
