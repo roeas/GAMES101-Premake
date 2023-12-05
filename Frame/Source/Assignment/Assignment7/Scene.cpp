@@ -60,7 +60,7 @@ bool Scene::trace(
 }
 
 // Implementation of Path Tracing
-Vector3f Scene::castRay(const Ray &ray, int depth) const
+Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
 {
     Vector3f lightDirect{ 0.0f, 0.0f , 0.0f };
     Vector3f lightEnvironment{ 0.0f, 0.0f , 0.0f };
@@ -107,17 +107,17 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     if (get_random_float() < RussianRoulette)
     {
         // Material::sample 通过入射角，法线和材质返回一条出射光线。
-        Vector3f rayDirOut = material->sample(rayDir, normal).normalized();
-        Ray rayOut(position, rayDirOut);
+        Vector3f rayOutDir = material->sample(rayDir, normal).normalized();
+        Ray rayOut(position, rayOutDir);
         Intersection interNext = intersect(rayOut);
 
         if (interNext.happened && !interNext.m->hasEmission())
         {
             // 下一条射线未命中场景则停止递归。
             // 击中光源也停止递归，因为光源的直接贡献已经在直接光的部分计算过了。
-            Vector3f brdfNext = material->eval(rayDir, rayDirOut, normal);
-            float pdfNext = material->pdf(rayDir, rayDirOut, normal);
-            float cosTheta = dotProduct(rayDirOut, normal);
+            Vector3f brdfNext = material->eval(rayDir, rayOutDir, normal);
+            float pdfNext = material->pdf(rayDir, rayOutDir, normal);
+            float cosTheta = dotProduct(rayOutDir, normal);
             lightEnvironment = castRay(rayOut, depth + 1) * brdfNext * cosTheta / pdfNext / RussianRoulette;
         }
     }

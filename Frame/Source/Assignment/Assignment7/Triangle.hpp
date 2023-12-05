@@ -238,13 +238,13 @@ inline Intersection Triangle::getIntersection(Ray ray)
     }
 
     // E1, E2 在 Triangle 的构造函数中已经赋好值了。
-    Vector3f E1 = e1;
-    Vector3f E2 = e2;
-    Vector3f D = ray.direction;
-    Vector3f O = ray.origin;
-    Vector3f P0 = v0;
-    Vector3f P1 = v1;
-    Vector3f P2 = v2;
+    const Vector3f &E1 = e1;
+    const Vector3f &E2 = e2;
+    const Vector3f &D = ray.direction;
+    const Vector3f &O = ray.origin;
+    const Vector3f &P0 = v0;
+    const Vector3f &P1 = v1;
+    const Vector3f &P2 = v2;
 
     Vector3f S1 = crossProduct(D, E2);
     double denominator = dotProduct(S1, E1);
