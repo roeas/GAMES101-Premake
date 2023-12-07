@@ -15,16 +15,16 @@
 `git clone https://github.com/Hinageshi01/GAMES101-Premake.git`
 
 ### 2.编译第三方库
-双击 `SetupThirdParty.bat`
+运行 `SetupThirdParty.bat`
 
 ### 3.去吃个饭或者泡杯茶
 大概要跑个十分钟左右。
 
 ### 4.构建 VS2022 solution
-双击 `Setup.bat`
+运行 `Setup.bat`
 
 ### 5.搞定！
-双击在根目录生成的 `Frame.sln`，即可打开框架。
+打开在根目录生成的 `Frame.sln`，即可打开框架。
 
 # 运行
 在 VS 中找到 `解决方案管理器`，右键任一你想运行的作业，点击 `设为启动项`，编译并运行。
