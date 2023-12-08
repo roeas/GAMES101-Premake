@@ -43,7 +43,7 @@ public:
                                                    const std::vector<Object *> &objects, uint32_t &index,
                                                    const Vector3f &dir, float specularExponent);
 
-    // creating the scene (adding objects and lights)
+    // creating theObject scene (adding objects and lights)
     std::vector<Object* > objects;
     std::vector<std::unique_ptr<Light> > lights;
 

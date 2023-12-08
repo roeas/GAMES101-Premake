@@ -18,22 +18,15 @@ Intersection Scene::intersect(const Ray &ray) const
 
 void Scene::sampleLight(Intersection &pos, float &pdf) const
 {
-    // 这他妈到底是什么？
-    float emit_area_sum = 0;
-    for (uint32_t k = 0; k < objects.size(); ++k) {
-        if (objects[k]->hasEmit()){
-            emit_area_sum += objects[k]->getArea();
-        }
-    }
-    float p = get_random_float() * emit_area_sum;
-    emit_area_sum = 0;
-    for (uint32_t k = 0; k < objects.size(); ++k) {
-        if (objects[k]->hasEmit()){
-            emit_area_sum += objects[k]->getArea();
-            if (p <= emit_area_sum){
-                objects[k]->Sample(pos, pdf);
-                break;
-            }
+    // 这里原本的逻辑大概是随机采样场景中的一盏光源，
+    // 估计是因为他们混用了 Light 和 Emissive Mash 才写得出来那么脑溢血的代码。
+    // 由于当前场景里只存在唯一一盏光源，我们可以改得稍微 Trick 一点。
+    for (const auto &obj : objects)
+    {
+        if (obj->hasEmit())
+        {
+            obj->Sample(pos, pdf);
+            break;
         }
     }
 }
@@ -54,7 +47,6 @@ bool Scene::trace(
             index = indexK;
         }
     }
-
 
     return (*hitObject != nullptr);
 }
@@ -78,35 +70,38 @@ Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
         return inter.m->getEmission();
     }
 
-    // 1. 直接光
-    float pdfLight;
-    Intersection interLight;
-    sampleLight(interLight, pdfLight);
-
     Vector3f rayDir = ray.direction;
     Material *material = inter.m;
     Vector3f normal = inter.normal.normalized();
-
     Vector3f position = inter.coords;
-    Vector3f positionLight = interLight.coords;
-    Vector3f lightDir = (positionLight - position).normalized();
-    float distanceToLight = (positionLight - position).norm();
-    float distanceToInter = intersect(Ray{ position, lightDir }).distance;
 
-    // 这里有点抽象，EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
-    if(Utils::FloatEqual(distanceToInter, distanceToLight, 0.0001f))
+    // 1. 直接光
+    if (MaterialType::MIRROR != inter.m->getType())
     {
-        // 着色点与光源之间无阻挡。
-        Vector3f brdfLight = material->eval(rayDir, lightDir, normal);
-        float NdotL = dotProduct(normal, lightDir);
-        float NdotL_Light = dotProduct(interLight.normal.normalized(), -lightDir);
-        lightDirect = interLight.emit * brdfLight * NdotL * NdotL_Light / std::pow(distanceToLight, 2) / pdfLight;
+        float pdfLight;
+        Intersection interLight;
+        sampleLight(interLight, pdfLight);
+
+        Vector3f positionLight = interLight.coords;
+        Vector3f lightDir = (positionLight - position).normalized();
+        float distanceToLight = (positionLight - position).norm();
+        float distanceToInter = intersect(Ray{ position, lightDir }).distance;
+
+        // 这里有点抽象，EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
+        if (Utils::FloatEqual(distanceToInter, distanceToLight, 0.0001f))
+        {
+            // 着色点与光源之间无阻挡。
+            Vector3f brdfLight = material->eval(rayDir, lightDir, normal);
+            float NdotL = dotProduct(normal, lightDir);
+            float NdotL_Light = dotProduct(interLight.normal.normalized(), -lightDir);
+            lightDirect = interLight.emit * brdfLight * NdotL * NdotL_Light / std::pow(distanceToLight, 2) / pdfLight;
+        }
     }
 
     // 2. 间接光
     if (get_random_float() < RussianRoulette)
     {
-        // Material::sample 通过入射角，法线和材质返回一条出射光线。
+        // Material::sample 通过入射角，法线和材质返回出射光线的方向。
         Vector3f rayOutDir = material->sample(rayDir, normal).normalized();
         Ray rayOut(position, rayOutDir);
         Intersection interNext = intersect(rayOut);
