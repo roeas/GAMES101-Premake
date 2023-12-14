@@ -6,8 +6,9 @@
 #include "OBJ_Loader.hpp"
 #include "Object.hpp"
 #include "Triangle.hpp"
-#include <cassert>
+
 #include <array>
+#include <cassert>
 
 bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1,
                           const Vector3f& v2, const Vector3f& orig,
@@ -47,41 +48,36 @@ public:
     Vector3f t0, t1, t2; // texture coords
     Vector3f normal;
     float area;
-    Material* m;
+    Material *m;
 
-    Triangle(Vector3f _v0, Vector3f _v1, Vector3f _v2, Material* _m = nullptr)
+    Triangle(Vector3f _v0, Vector3f _v1, Vector3f _v2, Material *_m = nullptr)
         : v0(_v0), v1(_v1), v2(_v2), m(_m)
     {
         e1 = v1 - v0;
         e2 = v2 - v0;
         normal = normalize(crossProduct(e1, e2));
-        area = crossProduct(e1, e2).norm()*0.5f;
+        area = crossProduct(e1, e2).norm() * 0.5f;
     }
 
-    bool intersect(const Ray& ray) override;
-    bool intersect(const Ray& ray, float& tnear,
-                   uint32_t& index) const override;
+    bool intersect(const Ray &ray) override;
+    bool intersect(const Ray &ray, float &tnear, uint32_t &index) const override;
     Intersection getIntersection(Ray ray) override;
-    void getSurfaceProperties(const Vector3f& P, const Vector3f& I,
-                              const uint32_t& index, const Vector2f& uv,
-                              Vector3f& N, Vector2f& st) const override
-    {
-        N = normal;
-        //        throw std::runtime_error("triangle::getSurfaceProperties not
-        //        implemented.");
-    }
-    Vector3f evalDiffuseColor(const Vector2f&) const override;
+
+    Vector3f evalDiffuseColor(const Vector2f &) const override;
     Bounds3 getBounds() override;
-    void Sample(Intersection &pos, float &pdf){
+    void Sample(Intersection &pos, float &pdf)
+    {
         float x = std::sqrt(get_random_float()), y = get_random_float();
         pos.coords = v0 * (1.0f - x) + v1 * (x * (1.0f - y)) + v2 * (x * y);
         pos.normal = this->normal;
         pdf = 1.0f / area;
     }
-    float getArea(){
+    float getArea()
+    {
         return area;
     }
-    bool hasEmit(){
+    bool hasEmit()
+    {
         return m->hasEmission();
     }
 };
@@ -221,11 +217,7 @@ public:
 };
 
 inline bool Triangle::intersect(const Ray& ray) { return true; }
-inline bool Triangle::intersect(const Ray& ray, float& tnear,
-                                uint32_t& index) const
-{
-    return false;
-}
+inline bool Triangle::intersect(const Ray& ray, float& tnear, uint32_t& index) const { return false; }
 
 inline Bounds3 Triangle::getBounds() { return Union(Bounds3(v0, v1), v2); }
 
@@ -248,7 +240,7 @@ inline Intersection Triangle::getIntersection(Ray ray)
 
     Vector3f S1 = crossProduct(D, E2);
     double denominator = dotProduct(S1, E1);
-    if (fabs(denominator) < EPSILON)
+    if (fabs(denominator) < 0.00001f)
     {
         return Intersection{};
     }

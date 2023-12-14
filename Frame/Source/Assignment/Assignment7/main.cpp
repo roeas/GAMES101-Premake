@@ -1,20 +1,14 @@
+#include "global.hpp"
 #include "Renderer.hpp"
 #include "Scene.hpp"
 #include "Triangle.hpp"
-#include "Sphere.hpp"
+#include "Utils.hpp"
 #include "Vector.hpp"
-#include "global.hpp"
+
 #include <chrono>
 
-#include "Utils.hpp"
-
-// In the main function of the program, we create the scene (create objects and
-// lights) as well as set the options for the render (image width and height,
-// maximum recursion depth, field-of-view, etc.). We then call the render
-// function().
 int main(int argc, char** argv)
 {
-
     // Change the definition here to change resolution
     Scene scene(784, 784);
 
@@ -54,9 +48,8 @@ int main(int argc, char** argv)
     scene.buildBVH();
 
     Renderer r;
-
     auto start = std::chrono::system_clock::now();
-    r.Render(scene, 16);
+    r.Render(scene, 4);
     auto stop = std::chrono::system_clock::now();
 
     auto time = stop - start;
