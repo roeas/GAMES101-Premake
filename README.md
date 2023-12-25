@@ -1,14 +1,14 @@
 # GAMES101-Premake
 [![MSBuild](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml/badge.svg?branch=main)](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml)
 
-GAMES101-Premake 是一个基于 Premake5 一键配置 GAMES101 作业运行环境的框架。
+GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环境的框架。
 
-旨在免去烦杂的 C++ 环境配置问题和虚拟机的使用，提供能够专注于图形学原理本身的作业框架。
+旨在免去烦杂的 C++ 环境配置问题和虚拟机的使用，更好地专注于图形学原理和实现本身。
 
 只支持 Windows + VS2022。
 
 # 依赖
-先并安装 VS2022 与 CMake（3.15 或更高的版本）。
+先安装 VS2022 与 CMake（3.15 或更高的版本）。
 
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
