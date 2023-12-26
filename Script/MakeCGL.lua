@@ -1,19 +1,19 @@
 projectName = "CGL"
 
-assignmentPath = path.join(AssignmentsPath, projectName)
+currentPath = path.join(AssignmentsPath, projectName)
 print("Generating "..projectName.."...")
-print("Source path: "..assignmentPath)
+print("Source path: "..currentPath)
 
 project(projectName)
 	kind("StaticLib")
-	-- SharedLib, StaticLib, ConsoleApp
+	-- SharedLib, StaticLib, ConsoleApp, Utility
 	language("C++")
 	cppdialect("C++20")
 	
 	-- Intermediate and binary path.
 	location(IntermediatePath)
-	objdir(path.join(IntermediatePath, "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/%{prj.name}"))
-	targetdir(path.join(BinaryPath, "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/%{prj.name}"))
+	objdir(path.join(IntermediatePath, "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"))
+	targetdir(path.join(BinaryPath, "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"))
 	
 	-- Target name.
 	filter { "configurations:Debug" }
@@ -24,13 +24,13 @@ project(projectName)
 	
 	-- Set files.
 	files {
-		path.join(assignmentPath, "**.*"),
+		path.join(currentPath, "**.*"),
 	}
 	
 	-- Set filter.
 	vpaths {
 		["Source/"] = { 
-			path.join(assignmentPath, "**.*"),
+			path.join(currentPath, "**.*"),
 		},
 	}
 	

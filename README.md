@@ -1,10 +1,14 @@
 # GAMES101-Premake
 [![MSBuild](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml/badge.svg?branch=main)](https://github.com/Hinageshi01/GAMES101-Premake/actions/workflows/msbuild.yml)
 
-由 Premake5 构建的 GAMES101 作业框架，只支持 Windows + VS2022。
+GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环境的框架。
+
+旨在免去烦杂的 C++ 环境配置问题和虚拟机的使用，更好地专注于图形学原理和实现本身。
+
+只支持 Windows + VS2022。
 
 # 依赖
-先下载并安装 VS2022 与 CMake（3.15 或更高的版本）。
+先安装 VS2022 与 CMake（3.15 或更高的版本）。
 
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
@@ -17,14 +21,14 @@
 ### 2.编译第三方库
 运行 `SetupThirdParty.bat`
 
-### 3.去吃个饭或者泡杯茶
-大概要跑个十分钟左右。
+### 3.去吃个饭
+可能要跑个一二十分钟。
 
-### 4.构建 VS2022 solution
+### 4.生成 VS2022 solution
 运行 `Setup.bat`
 
 ### 5.搞定！
-打开在根目录生成的 `Frame.sln`，即可打开框架。
+打开根目录的 `Frame.sln`，即可打开框架。
 
 # 运行
 在 VS 中找到 `解决方案管理器`，右键任一你想运行的作业，点击 `设为启动项`，编译并运行。

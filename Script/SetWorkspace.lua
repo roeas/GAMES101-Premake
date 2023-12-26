@@ -1,7 +1,4 @@
 workspace("Frame")
-	location(RootPath)
-	targetdir(BinaryPath)
-	
 	architecture("x64")
 	configurations { "Debug", "Release" }
 	
