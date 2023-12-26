@@ -1,12 +1,12 @@
 projectName = "Assignment8"
 
-assignmentPath = path.join(AssignmentsPath, projectName)
+currentPath = path.join(AssignmentsPath, projectName)
 print("Generating "..projectName.."...")
-print("Source path: "..assignmentPath)
+print("Source path: "..currentPath)
 
 project(projectName)
 	kind("ConsoleApp")
-	-- SharedLib, StaticLib, ConsoleApp
+	-- SharedLib, StaticLib, ConsoleApp, Utility
 	language("C++")
 	cppdialect("C++20")
 	dependson("CGL")
@@ -25,13 +25,14 @@ project(projectName)
 	
 	-- Set definitions.
 	defines {
+		"FRAME_ROOT_PATH=\""..RootPath.."\"",
 		"FRAME_ASSET_PATH=\""..AssetPath.."\"",
 	}
 	
 	-- Set files.
 	files {
 		path.join(AssignmentsPath, "Utils.hpp"),
-		path.join(assignmentPath, "**.*"),
+		path.join(currentPath, "**.*"),
 	}
 	
 	-- Set filter.
@@ -40,7 +41,7 @@ project(projectName)
 			path.join(AssignmentsPath, "Utils.hpp"),
 		},
 		["Source/"] = { 
-			path.join(assignmentPath, "**.*"),
+			path.join(currentPath, "**.*"),
 		},
 	}
 	
@@ -56,7 +57,7 @@ project(projectName)
 	-- Link to thirdparty libs.
 	filter { "configurations:Debug" }
 		libdirs {
-			path.join(BinaryPath, "Debug-windows-x86_64/CGL"),
+			path.join(BinaryPath, "Debug-windows-x86_64"),
 			path.join(ThirdPartyPath, "freetype/build/Debug"),
 			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Debug"),
 			path.join(ThirdPartyPath, "glfw/build/src/Debug"),
@@ -70,7 +71,7 @@ project(projectName)
 		}
 	filter { "configurations:Release" }
 		libdirs {
-			path.join(BinaryPath, "Release-windows-x86_64/CGL"),
+			path.join(BinaryPath, "Release-windows-x86_64"),
 			path.join(ThirdPartyPath, "freetype/build/Release"),
 			path.join(ThirdPartyPath, "glew/build/cmake/build/lib/Release"),
 			path.join(ThirdPartyPath, "glfw/build/src/Release"),

@@ -1,11 +1,11 @@
 function MakeAssignment(projectName)
-	assignmentPath = path.join(AssignmentsPath, projectName)
+	currentPath = path.join(AssignmentsPath, projectName)
 	print("Generating "..projectName.."...")
-	print("Source path: "..assignmentPath)
+	print("Source path: "..currentPath)
 	
 	project(projectName)
 		kind("ConsoleApp")
-		-- SharedLib, StaticLib, ConsoleApp
+		-- SharedLib, StaticLib, ConsoleApp, Utility
 		language("C++")
 		cppdialect("C++20")
 		
@@ -30,7 +30,7 @@ function MakeAssignment(projectName)
 		-- Set files.
 		files {
 			path.join(AssignmentsPath, "Utils.hpp"),
-			path.join(assignmentPath, "**.*"),
+			path.join(currentPath, "**.*"),
 			path.join(ThirdPartyPath, "eigen3/Eigen/**.*"),
 		}
 		
@@ -40,7 +40,7 @@ function MakeAssignment(projectName)
 				path.join(AssignmentsPath, "Utils.hpp"),
 			},
 			["Source/"] = { 
-				path.join(assignmentPath, "**.*"),
+				path.join(currentPath, "**.*"),
 			},
 		}
 		
@@ -49,12 +49,11 @@ function MakeAssignment(projectName)
 			FramePath,
 			SourcePath,
 			AssignmentsPath,
-			assignmentPath,
+			currentPath,
 			ThirdPartyPath,
 			path.join(ThirdPartyPath, "opencv/include"),
 			path.join(ThirdPartyPath, "opencv/build"),
 			path.join(ThirdPartyPath, "opencv/modules/**/include"),
-			AssetPath,
 		}
 		
 		-- Link to thirdparty libs.
