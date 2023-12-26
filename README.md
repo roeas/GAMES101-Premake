@@ -33,7 +33,7 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 # 运行
 在 VS 中找到 `解决方案管理器`，右键任一你想运行的作业，点击 `设为启动项`，编译并运行。
 
-# 答案（WIP）
+# 答案
 位于 answer branch，使用 `git stash` 暂存你当前的修改，`git checkout answer` 切换至答案分支。
 
 使用 `git checkout main` 切换回主分支，`git stash pop` 还原你的修改。
@@ -46,7 +46,7 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
   - 修改了一些路径相关的代码以适配框架：
     - 模型位于 `GAMES101-Premake/Frame/Asset/model`
     - 作业 5、6、7 的输出位于 `GAMES101-Premake/Frame/Asset/output`
-  - 魔改了作业 8 及其依赖，待测试。
+  - 魔改了作业 8 的依赖，遇到任何问题请通过 issue 让我知道。
 
 - C++ 版本：20
 
