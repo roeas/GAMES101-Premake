@@ -1,4 +1,6 @@
 workspace("Frame")
+	location(RootPath)
+	
 	architecture("x64")
 	configurations { "Debug", "Release" }
 	
