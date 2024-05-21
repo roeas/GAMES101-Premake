@@ -51,7 +51,7 @@ public:
         return (&x)[index];
     }
 
-    // 乐了，别光声明不写实现啊 GAMES，还有这个 用 double 返回 float 成员变量什么鬼。
+    // 修复框架 bug
     float &operator[](int index)
     {
         return (&x)[index];
