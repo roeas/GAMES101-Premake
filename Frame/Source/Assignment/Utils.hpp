@@ -19,7 +19,7 @@ inline std::string PathFromAsset(std::string relativePath)
 
 inline bool FloatEqual(const float a, const float b, const float EPSILON = FLT_EPSILON)
 {
-    return (std::abs(a - b) <= EPSILON);
+    return std::abs(a - b) <= EPSILON;
 }
 
 } // namespace Utils
