@@ -81,7 +81,7 @@ void bezier(const std::vector<cv::Point2f> &control_points, cv::Mat &window)
                 int x_index = point.x() + offset[i][j].x();
                 int y_index = point.y() + offset[i][j].y();
 
-                // OpenVC 会使一个像素点的值 mod 255
+                // OpenCV 会使一个像素点的值 mod 255
                 uchar color = std::max(static_cast<uchar>(filter[i][j] * 255), window.at<cv::Vec3b>(y_index, x_index)[1]);
                 window.at<cv::Vec3b>(y_index, x_index)[1] = std::min(static_cast<uchar>(255), color);
             }
