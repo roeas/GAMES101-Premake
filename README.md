@@ -16,7 +16,7 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 
 # 开始
 ### 1. 下载本仓库
-`git clone https://github.com/Hinageshi01/GAMES101-Premake.git`
+`git clone https://github.com/roeas/GAMES101-Premake`
 
 ### 2. 编译第三方库
 运行 `SetupThirdParty.bat`
