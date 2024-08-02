@@ -42,7 +42,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 
 static bool insideTriangle(float x, float y, const Vector3f* v)
 {   
-    // ´ËÊ±Î»ÓÚÆÁÄ»¿Õ¼ä£¬±£Ö¤ z ·ÖÁ¿Ò»ÖÂ¼´¿É
+    // æ­¤æ—¶ä½äºå±å¹•ç©ºé—´ï¼Œä¿è¯ z åˆ†é‡ä¸€è‡´å³å¯
     Eigen::Vector3f point = { x, y, 1.0f };
     Eigen::Vector3f vertex_a = { v[0].x(), v[0].y(), 1.0f };
     Eigen::Vector3f vertex_b = { v[1].x(), v[1].y(), 1.0f };
@@ -124,7 +124,7 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
     
-    // AABB Ó¦µ±ÓÉÕûÊıµÄÏñËØÏÂ±êË÷Òı¶¨Òå
+    // AABB åº”å½“ç”±æ•´æ•°çš„åƒç´ ä¸‹æ ‡ç´¢å¼•å®šä¹‰
     uint16_t min_x = std::floor(std::min(v[0].x(), std::min(v[1].x(), v[2].x())));
     uint16_t max_x = std::ceil(std::max(v[0].x(), std::max(v[1].x(), v[2].x())));
     uint16_t min_y = std::floor(std::min(v[0].y(), std::min(v[1].y(), v[2].y())));
@@ -137,12 +137,12 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
             float &depth = depth_buf[index];
 
-            // SSAA Ëù²ÉÑùµÄËÄ¸ö×ÓÏñËØÏà¶ÔÓÚÏñËØ×óÏÂ½Ç×ø±êµÄÆ«ÒÆÁ¿
+            // SSAA æ‰€é‡‡æ ·çš„å››ä¸ªå­åƒç´ ç›¸å¯¹äºåƒç´ å·¦ä¸‹è§’åæ ‡çš„åç§»é‡
             static const std::vector<Eigen::Vector2f> s_offsets = { {0.25f, 0.25f}, {0.75f, 0.25f}, {0.25f, 0.75f}, {0.75f, 0.75f} };
             constexpr uint8_t SubPixelCount = 4;
             assert(s_offsets.size() == SubPixelCount);
 
-            // ÓÃÓÚ¼ÆËã×ÓÏñËØ¹±Ï×Öµ
+            // ç”¨äºè®¡ç®—å­åƒç´ è´¡çŒ®å€¼
             uint8_t activeColor = 0;
             uint8_t activeDepth = 0;
             Eigen::Vector3f finalColor = { 0.0f, 0.0f , 0.0f };
@@ -153,7 +153,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                 float subPos_x = static_cast<float>(pos_x) + offset.x();
                 float subPos_y = static_cast<float>(pos_y) + offset.y();
 
-                // »ñÈ¡×ÓÏñËØµÄÉî¶È²åÖµ
+                // è·å–å­åƒç´ çš„æ·±åº¦æ’å€¼
                 auto [alpha, beta, gamma] = computeBarycentric2D(subPos_x, subPos_y, t.v);
                 float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
@@ -161,14 +161,14 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
 
                 if (insideTriangle(subPos_x, subPos_y, t.v))
                 {
-                    // ĞŞ¸´¿ò¼Ü bug
+                    // ä¿®å¤æ¡†æ¶ bug
                     if (z_interpolated > depth)
                     {
-                        // Ö»ÓĞÍ¬Ê±Í¨¹ıÁË inside ²âÊÔÓëÉî¶È²âÊÔ²Å»á¶ÔÑÕÉ«ÓĞ¹±Ï×
+                        // åªæœ‰åŒæ—¶é€šè¿‡äº† inside æµ‹è¯•ä¸æ·±åº¦æµ‹è¯•æ‰ä¼šå¯¹é¢œè‰²æœ‰è´¡çŒ®
                         ++activeColor;
                         finalColor += t.getColor();
                     }
-                    // Ö»ÒªÍ¨¹ı inside ²âÊÔ¾Í»á¶ÔÉî¶ÈÓĞ¹±Ï×
+                    // åªè¦é€šè¿‡ inside æµ‹è¯•å°±ä¼šå¯¹æ·±åº¦æœ‰è´¡çŒ®
                     ++activeDepth;
                     finalDepth += z_interpolated;
                 }
@@ -177,13 +177,13 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             finalColor /= static_cast<float>(activeColor);
             finalDepth /= static_cast<float>(activeDepth);
 
-            // Ã»ÓĞÍ¨¹ı²âÊÔµÄ×ÓÏñËØÒÀ¾ÉÓ¦µ±¶ÔÑÕÉ«ÓëÉî¶È²úÉú¹±Ï×£¬
-            // °´ÀíÀ´ËµÆäÖµÓ¦´Ó frame_buf_ssaax4 Óë depth_buf_ssaax4 ÖĞ»ñÈ¡¡£
-            // ¼øÓÚ¿ò¼Ü±¾Éí½ÏÎª¼òÂª£¬ÕâÀïÒâË¼µ½Î»¼´¿É¡£
+            // æ²¡æœ‰é€šè¿‡æµ‹è¯•çš„å­åƒç´ ä¾æ—§åº”å½“å¯¹é¢œè‰²ä¸æ·±åº¦äº§ç”Ÿè´¡çŒ®ï¼Œ
+            // æŒ‰ç†æ¥è¯´å…¶å€¼åº”ä» frame_buf_ssaax4 ä¸ depth_buf_ssaax4 ä¸­è·å–ã€‚
+            // é‰´äºæ¡†æ¶æœ¬èº«è¾ƒä¸ºç®€é™‹ï¼Œè¿™é‡Œæ„æ€åˆ°ä½å³å¯ã€‚
             // finalColor += static_cast<float>(SubPixelCount - activeColor) / static_cast<float>(SubPixelCount) * frame_buf_ssaax2[subIndex];
             // finalDepth += static_cast<float>(SubPixelCount - activeDepth) / static_cast<float>(SubPixelCount) * depth_buf_ssaax2[subIndex];
 
-            // ĞŞ¸´¿ò¼Ü bug
+            // ä¿®å¤æ¡†æ¶ bug
             if (finalDepth > depth)
             {
                 depth = finalDepth;
@@ -216,7 +216,7 @@ void rst::rasterizer::clear(rst::Buffers buff)
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
-        // ĞŞ¸´¿ò¼Ü bug
+        // ä¿®å¤æ¡†æ¶ bug
         std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::lowest());
     }
 }

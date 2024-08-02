@@ -212,7 +212,7 @@ inline Intersection Triangle::getIntersection(Ray ray)
 {
     if (dotProduct(ray.direction, normal) > 0.0f)
     {
-        // ¹âÔ´Î»ÓÚÈı½ÇĞÎ±³Ãæ¡£
+        // å…‰æºä½äºä¸‰è§’å½¢èƒŒé¢ã€‚
         return Intersection{};
     }
 

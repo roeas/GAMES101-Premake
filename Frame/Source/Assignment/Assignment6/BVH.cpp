@@ -29,14 +29,14 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 {
     BVHBuildNode* pNode = new BVHBuildNode();
 
-    // ËùÓĞÎïÌåµÄ°üÎ§ºĞ¼¯ºÏ¡£
+    // æ‰€æœ‰ç‰©ä½“çš„åŒ…å›´ç›’é›†åˆã€‚
     Bounds3 bounds;
     for (int i = 0; i < objects.size(); ++i)
     {
         bounds = Union(bounds, objects[i]->getBounds());
     }
 
-    // Ö»´æÔÚÒ»¸öÎïÌå£¬½¨Á¢Ò¶½Úµã¡£
+    // åªå­˜åœ¨ä¸€ä¸ªç‰©ä½“ï¼Œå»ºç«‹å¶èŠ‚ç‚¹ã€‚
     if (objects.size() == 1)
     {
         pNode->bounds = objects[0]->getBounds();
@@ -46,7 +46,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
         return pNode;
     }
-    // ´æÔÚÁ½¸öÎïÌå£¬½¨Á¢Æä left ºÍ right Ò¶½Úµã¡£
+    // å­˜åœ¨ä¸¤ä¸ªç‰©ä½“ï¼Œå»ºç«‹å…¶ left å’Œ right å¶èŠ‚ç‚¹ã€‚
     else if (objects.size() == 2)
     {
         pNode->left = recursiveBuild(std::vector{ objects[0] });
@@ -57,33 +57,33 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     }
     else
     {
-        // ÓÉËùÓĞÎïÌåµÄÖÊĞÄ×é³ÉµÄ°üÎ§ºĞ¡£
+        // ç”±æ‰€æœ‰ç‰©ä½“çš„è´¨å¿ƒç»„æˆçš„åŒ…å›´ç›’ã€‚
         Bounds3 centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
         {
             centroidBounds = Union(centroidBounds, objects[i]->getBounds().Centroid());
         }
 
-        // ×î³¤µÄÎ¬¶È¡£
+        // æœ€é•¿çš„ç»´åº¦ã€‚
         switch (centroidBounds.maxExtent())
         {
         case 0:
-            // X Öá¡£
+            // X è½´ã€‚
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
-                // ½«ËùÓĞÎïÌå°´ÕÕÆä°üÎ§ºĞµÄÖÊĞÄµÄ X ÖáÅÅĞò£¬Y ÖáºÍ Z ÖáµÄ case Í¬Àí¡£
+                // å°†æ‰€æœ‰ç‰©ä½“æŒ‰ç…§å…¶åŒ…å›´ç›’çš„è´¨å¿ƒçš„ X è½´æ’åºï¼ŒY è½´å’Œ Z è½´çš„ case åŒç†ã€‚
                 return f1->getBounds().Centroid().x < f2->getBounds().Centroid().x;
             });
             break;
         case 1:
-            // Y Öá¡£
+            // Y è½´ã€‚
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
                 return f1->getBounds().Centroid().y < f2->getBounds().Centroid().y;
             });
             break;
         case 2:
-            // Z Öá¡£
+            // Z è½´ã€‚
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
                 return f1->getBounds().Centroid().z < f2->getBounds().Centroid().z;
@@ -98,14 +98,14 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
 #if ENABLE_SAH
 
-        // Ò»·İ±È½ÏÇåÎúµÄ SAH ½éÉÜ£ºhttps://zhuanlan.zhihu.com/p/50720158
+        // ä¸€ä»½æ¯”è¾ƒæ¸…æ™°çš„ SAH ä»‹ç»ï¼šhttps://zhuanlan.zhihu.com/p/50720158
 
-        // »®·Ö·½Ê½µÄ×ÜÊı¡£
+        // åˆ’åˆ†æ–¹å¼çš„æ€»æ•°ã€‚
         constexpr uint8_t SlashCount = 8;
         constexpr float SlashCountInv = 1.0f / static_cast<float>(SlashCount);
         const float SC = centroidBounds.SurfaceArea();
 
-        // ÓÃÓÚ¼ÇÂ¼×îÓÅµÄ»®·Ö·½Ê½¡£
+        // ç”¨äºè®°å½•æœ€ä¼˜çš„åˆ’åˆ†æ–¹å¼ã€‚
         uint8_t minCostIndex = SlashCount / 2;
         float minCost = std::numeric_limits<float>::infinity();
 
@@ -115,7 +115,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
             auto leftObjects = std::vector<Object *>(begin, target);
             auto rightObjects = std::vector<Object *>(target, end);
 
-            // ·Ö±ğ¼ÆËã»®·ÖÖ®ºóÁ½²¿·Ö°üÎ§ºĞµÄ±íÃæ»ı¡£
+            // åˆ†åˆ«è®¡ç®—åˆ’åˆ†ä¹‹åä¸¤éƒ¨åˆ†åŒ…å›´ç›’çš„è¡¨é¢ç§¯ã€‚
             Bounds3 leftBounds, rightBounds;
             for (const auto &obj : leftObjects)
             {
@@ -134,7 +134,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
             if (cost < minCost)
             {
-                // ¸üĞÂ¸üÓÅµÄ»®·Ö·½Ê½¡£
+                // æ›´æ–°æ›´ä¼˜çš„åˆ’åˆ†æ–¹å¼ã€‚
                 minCost = cost;
                 minCostIndex = index;
             }
@@ -144,7 +144,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
 #else // ENABLE_SAH
 
-        // »ù±¾µÄ BVH »®·Ö·½Ê½£¬°´ÊıÁ¿´ÓÖĞ¼äÒ»·ÖÎª¶ş¡£
+        // åŸºæœ¬çš„ BVH åˆ’åˆ†æ–¹å¼ï¼ŒæŒ‰æ•°é‡ä»ä¸­é—´ä¸€åˆ†ä¸ºäºŒã€‚
         const auto &target = objects.begin() + (objects.size() / 2);
 
 #endif // ENABLE_SAH
@@ -181,7 +181,7 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
         return Intersection{};
     }
 
-    // Ò¶½Úµã
+    // å¶èŠ‚ç‚¹
     if (node->left == nullptr && node->right == nullptr)
     {
         return node->object->getIntersection(ray);

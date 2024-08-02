@@ -225,11 +225,11 @@ inline Intersection Triangle::getIntersection(Ray ray)
 {
     if (dotProduct(ray.direction, normal) > 0.0f)
     {
-        // ¹âÔ´Î»ÓÚÈı½ÇĞÎ±³Ãæ¡£
+        // å…‰æºä½äºä¸‰è§’å½¢èƒŒé¢ã€‚
         return Intersection{};
     }
 
-    // E1, E2 ÔÚ Triangle µÄ¹¹Ôìº¯ÊıÖĞÒÑ¾­¸³ºÃÖµÁË¡£
+    // E1, E2 åœ¨ Triangle çš„æ„é€ å‡½æ•°ä¸­å·²ç»èµ‹å¥½å€¼äº†ã€‚
     const Vector3f &E1 = e1;
     const Vector3f &E2 = e2;
     const Vector3f &D = ray.direction;

@@ -30,15 +30,15 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
 
 Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
-    // ĞŞ¸´¿ò¼Ü bug
+    // ä¿®å¤æ¡†æ¶ bug
     near = -near;
     far = -far;
 
-    // ÓÉ frustum µÄ¶¨ÒåµÃ top Óë right
+    // ç”± frustum çš„å®šä¹‰å¾— top ä¸ right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
 
-    // ÓÉÏà»ú´ËÊ±µÄÎ»ÖÃÓë·½ÏòµÃ bottom = -top Óë left = -right
+    // ç”±ç›¸æœºæ­¤æ—¶çš„ä½ç½®ä¸æ–¹å‘å¾— bottom = -top ä¸ left = -right
     float bottom = -top;
     float left = -right;
 

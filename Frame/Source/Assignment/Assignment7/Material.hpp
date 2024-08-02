@@ -124,11 +124,11 @@ public:
         return false;
     }
 
-    // ·µ»Ø³öÉä¹âÏßµÄ·½Ïò¡£
+    // è¿”å›å‡ºå°„å…‰çº¿çš„æ–¹å‘ã€‚
     inline Vector3f sample(const Vector3f &wi, const Vector3f &N);
-    // ·µ»Ø²ÉÑùµÄ PDF¡£
+    // è¿”å›é‡‡æ ·çš„ PDFã€‚
     inline float pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
-    // ·µ»Ø BRDF¡£
+    // è¿”å› BRDFã€‚
     inline Vector3f eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
 };
 
@@ -220,7 +220,7 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
         }
         case MaterialType::MIRROR:
         {
-            // ÌıËµÍêÃÀ¾µÃæÊÇĞèÒª¿¼ÂÇ·ÆÄù¶ûÏîµÄ£¬ÓĞ¿ÕÔÙÑĞ¾¿°É¡£
+            // å¬è¯´å®Œç¾é•œé¢æ˜¯éœ€è¦è€ƒè™‘è²æ¶…å°”é¡¹çš„ï¼Œæœ‰ç©ºå†ç ”ç©¶å§ã€‚
             return Vector3f{ 1.0f , 1.0f , 1.0f };
             break;
         }

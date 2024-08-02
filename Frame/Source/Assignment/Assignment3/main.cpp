@@ -51,15 +51,15 @@ Eigen::Matrix4f get_model_matrix(float angle)
 
 Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
-    // ĞŞ¸´¿ò¼Ü bug
+    // ä¿®å¤æ¡†æ¶ bug
     near = -near;
     far = -far;
 
-    // ÓÉ frustum µÄ¶¨ÒåµÃ top Óë right
+    // ç”± frustum çš„å®šä¹‰å¾— top ä¸ right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
 
-    // ÓÉÏà»ú´ËÊ±µÄÎ»ÖÃÓë·½ÏòµÃ bottom = -top Óë left = -right
+    // ç”±ç›¸æœºæ­¤æ—¶çš„ä½ç½®ä¸æ–¹å‘å¾— bottom = -top ä¸ left = -right
     float bottom = -top;
     float left = -right;
 
@@ -152,7 +152,7 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
 
 Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 {
-    // ºÃÏñ OpenCV ¶ÁÈ¡ png Ê±µÄ·µ»ØÖµ·¶Î§ÊÇ [0, 255]£¬¶ø·Ç [0, 1]
+    // å¥½åƒ OpenCV è¯»å– png æ—¶çš„è¿”å›å€¼èŒƒå›´æ˜¯ [0, 255]ï¼Œè€Œé [0, 1]
     static constexpr float reciprocal = 1.0f / 255.0f;
 
     static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
@@ -288,7 +288,7 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
         float du = kh * kn * (height_u - height);
         float dv = kh * kn * (height_v - height);
 
-        // ½«×ÅÉ«µãÑØ×ÅÔ­·¨ÏßµÄ·½Ïò½øĞĞÎ»ÒÆ
+        // å°†ç€è‰²ç‚¹æ²¿ç€åŸæ³•çº¿çš„æ–¹å‘è¿›è¡Œä½ç§»
         point += kn * normal * height;
 
         Eigen::Vector3f localNormal = Eigen::Vector3f{ -du, -dv, 1.0f };

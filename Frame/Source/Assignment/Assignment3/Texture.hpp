@@ -64,13 +64,13 @@ public:
         float v_img = (1.0f - v) * heightf;
         Eigen::Vector2f center{ std::round(u_img), std::round(v_img) };
 
-        // ±ß½çÇé¿ö£¬µ±²ÉÑùµãÎ»ÓÚ±ß½çÊ±½øĞĞ clamp£¬Ê¹µÃÁ½¶Ô´Î²ÉÑùµãÖµÏàµÈ£¬¼´´ËÊ±Ë«ÏßĞÔ²åÖµÍË»¯Îªµ¥´ÎÏßĞÔ²åÖµ
+        // è¾¹ç•Œæƒ…å†µï¼Œå½“é‡‡æ ·ç‚¹ä½äºè¾¹ç•Œæ—¶è¿›è¡Œ clampï¼Œä½¿å¾—ä¸¤å¯¹æ¬¡é‡‡æ ·ç‚¹å€¼ç›¸ç­‰ï¼Œå³æ­¤æ—¶åŒçº¿æ€§æ’å€¼é€€åŒ–ä¸ºå•æ¬¡çº¿æ€§æ’å€¼
         Eigen::Vector2f u00{ std::max(0.0f, center.x() - 0.5f), std::max(0.0f, center.y() - 0.5f) };
         Eigen::Vector2f u01{ std::max(0.0f, center.x() - 0.5f), std::min(heightf, center.y() + 0.5f)};
         Eigen::Vector2f u10{ std::min(widthf, center.x() + 0.5f), std::max(0.0f, center.y() - 0.5f) };
         Eigen::Vector2f u11{ std::min(widthf, center.x() + 0.5f), std::min(heightf, center.y() + 0.5f) };
 
-        // ±ß½çÇé¿ö£¬¼ÙÉè´Î²ÉÑùµã×ø±êÎª (width, height)£¬ËüÓ¦µ±²ÉÑùµÄÏÂ±êÔòÎª (width - 1, height - 1)
+        // è¾¹ç•Œæƒ…å†µï¼Œå‡è®¾æ¬¡é‡‡æ ·ç‚¹åæ ‡ä¸º (width, height)ï¼Œå®ƒåº”å½“é‡‡æ ·çš„ä¸‹æ ‡åˆ™ä¸º (width - 1, height - 1)
         Eigen::Vector2i u00_index{ std::clamp(static_cast<int>(u00.x()), 0, width - 1), std::clamp(static_cast<int>(u00.y()), 0, height - 1) };
         Eigen::Vector2i u01_index{ std::clamp(static_cast<int>(u01.x()), 0, width - 1), std::clamp(static_cast<int>(u01.y()), 0, height - 1) };
         Eigen::Vector2i u10_index{ std::clamp(static_cast<int>(u10.x()), 0, width - 1), std::clamp(static_cast<int>(u10.y()), 0, height - 1) };

@@ -21,7 +21,7 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eyePos)
 
 Eigen::Matrix4f get_model_matrix(float angle)
 {
-    // ÈÆ Z ÖáÐý×ª
+    // ç»• Z è½´æ—‹è½¬
     Eigen::Matrix4f model;
     model <<
         std::cos(angle), -std::sin(angle), 0.0f, 0.0f,
@@ -33,11 +33,11 @@ Eigen::Matrix4f get_model_matrix(float angle)
 
 Eigen::Matrix4f get_projection_matrix(float fov, float aspect, float near, float far)
 {
-    // ÓÉ frustum µÄ¶¨ÒåµÃ top Óë right
+    // ç”± frustum çš„å®šä¹‰å¾— top ä¸Ž right
     float top = std::tan(fov * 0.5f * MY_PI / 180.0f) * std::abs(near);
     float right = aspect * top;
 
-    // ÓÉÏà»ú´ËÊ±µÄÎ»ÖÃÓë·½ÏòµÃ bottom = -top Óë left = -right
+    // ç”±ç›¸æœºæ­¤æ—¶çš„ä½ç½®ä¸Žæ–¹å‘å¾— bottom = -top ä¸Ž left = -right
     float bottom = -top;
     float left = -right;
 

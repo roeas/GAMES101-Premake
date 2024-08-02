@@ -126,10 +126,10 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList)
 // Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector3f, 3>& view_pos) 
 {
-    // ÎªÁË»ñÈ¡¶¥µãµÄ w ·ÖÁ¿£¬ÕâÀï²»ÄÜÊ¹ÓÃ Triangle::toVector4
+    // ä¸ºäº†è·å–é¡¶ç‚¹çš„ w åˆ†é‡ï¼Œè¿™é‡Œä¸èƒ½ä½¿ç”¨ Triangle::toVector4
     const Eigen::Vector4f *v = t.v;
 
-    // AABB Ó¦µ±ÓÉÕûÊıµÄÏñËØÏÂ±êË÷Òı¶¨Òå
+    // AABB åº”å½“ç”±æ•´æ•°çš„åƒç´ ä¸‹æ ‡ç´¢å¼•å®šä¹‰
     uint16_t min_x = std::floor(std::min(v[0].x(), std::min(v[1].x(), v[2].x())));
     uint16_t max_x = std::ceil(std::max(v[0].x(), std::max(v[1].x(), v[2].x())));
     uint16_t min_y = std::floor(std::min(v[0].y(), std::min(v[1].y(), v[2].y())));
@@ -153,7 +153,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
             size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
             float &depth = depth_buf[index];
 
-            // ĞŞ¸´¿ò¼Ü bug
+            // ä¿®å¤æ¡†æ¶ bug
             if (final_z > depth)
             {
                 depth = final_z;
@@ -201,7 +201,7 @@ void rst::rasterizer::clear(rst::Buffers buff)
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
-        // ĞŞ¸´¿ò¼Ü bug
+        // ä¿®å¤æ¡†æ¶ bug
         std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::lowest());
     }
 }
