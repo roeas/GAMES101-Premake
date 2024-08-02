@@ -128,7 +128,7 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
         return Intersection{};
     }
 
-    // Ҷ�ڵ�
+    // 叶节点
     if (node->left == nullptr && node->right == nullptr)
     {
         return node->object->getIntersection(ray);

@@ -51,7 +51,7 @@ public:
         return (&x)[index];
     }
 
-    // ĞŞ¸´¿ò¼Ü bug
+    // ä¿®å¤æ¡†æ¶ bug
     float &operator[](int index)
     {
         return (&x)[index];
