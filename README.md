@@ -19,10 +19,10 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 `git clone https://github.com/roeas/GAMES101-Premake`
 
 ### 2. 编译第三方库
-运行 `SetupThirdParty.bat`
+运行 `SetupThirdParty.bat`。
 
 ### 3. 生成 VS2022 solution
-运行 `Setup.bat`
+运行 `Setup.bat`。
 
 ### 4. 搞定！
 打开根目录的 `Frame.sln` 即可。
@@ -37,12 +37,12 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 
 # 其他
 - 框架相关
-  - 文档位于 `GAMES101-Premake/Document`
-  - 官方提供的代码有不少问题，如果出现上下/前后颠倒的情况可以参考：[《GAMES101》作业框架问题详解](https://zhuanlan.zhihu.com/p/509902950)
+  - 文档位于 `GAMES101-Premake/Document`。
+  - 官方的代码有不少问题，如果出现上下/前后颠倒的情况可以参考：[《GAMES101》作业框架问题详解](https://zhuanlan.zhihu.com/p/509902950)。
   - 作业之间没有任何关系，在一作业内的修改不会应用到另一作业中，编写时注意区分。
   - 修改了一些路径相关的代码以适配框架：
-    - 模型位于 `GAMES101-Premake/Frame/Asset/model`
-    - 作业 5、6、7 的输出位于 `GAMES101-Premake/Frame/Asset/output`
+    - 模型位于 `GAMES101-Premake/Frame/Asset/model`。
+    - 作业 5、6、7 的输出位于 `GAMES101-Premake/Frame/Asset/output`。
   - 魔改了作业 8 的依赖，遇到任何问题请通过 issue 让我知道。
 
 - C++ 版本：20
@@ -50,7 +50,7 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 - Eigen 版本：3.4.0
 
 - OpenCV 版本：4.8.1
-  - OpenCV 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)
+  - OpenCV 依赖项的下载源已设置为由 OpenCV 中国和 GitCode 维护的国内仓库 [OpenCV](https://gitcode.net/opencv/opencv)。
   - TODO：取消 OpenCV 不必要模块的编译。
 
 - Freetype 版本：2.13.2
