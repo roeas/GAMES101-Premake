@@ -97,7 +97,6 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 #define ENABLE_SAH 1
 
 #if ENABLE_SAH
-
         // 一份比较清晰的 SAH 介绍：https://zhuanlan.zhihu.com/p/50720158
 
         // 划分方式的总数。
@@ -141,12 +140,9 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
         }
 
         const auto &target = objects.begin() + (objects.size() * minCostIndex * SlashCountInv);
-
 #else // ENABLE_SAH
-
         // 基本的 BVH 划分方式，按数量从中间一分为二。
         const auto &target = objects.begin() + (objects.size() / 2);
-
 #endif // ENABLE_SAH
 
         auto leftObjects = std::vector<Object *>(begin, target);

@@ -89,7 +89,7 @@ Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
         float distanceToLight = (positionLight - position).norm();
         float distanceToInter = intersect(Ray{ position, lightDir }).distance;
 
-        // 这里有点抽象，EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
+        // EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
         if (Utils::FloatEqual(distanceToInter, distanceToLight, 0.0001f))
         {
             // 着色点与光源之间无阻挡。

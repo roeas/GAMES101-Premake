@@ -20,7 +20,7 @@ Eigen::Matrix4f get_view_matrix(const Eigen::Vector3f &eye_pos)
                  0,0,1,-eye_pos[2],
                  0,0,0,1;
 
-    view = translate*view;
+    view = translate * view;
 
     return view;
 }
@@ -97,10 +97,8 @@ Eigen::Vector3f vertex_shader(const vertex_shader_payload& payload)
 
 Eigen::Vector3f normal_fragment_shader(const fragment_shader_payload& payload)
 {
-    Eigen::Vector3f return_color = (payload.normal.head<3>().normalized() + Eigen::Vector3f(1.0f, 1.0f, 1.0f)) / 2.f;
-    Eigen::Vector3f result;
-    result << return_color.x() * 255, return_color.y() * 255, return_color.z() * 255;
-    return result;
+    Eigen::Vector3f color = (payload.normal.head<3>().normalized() + Eigen::Vector3f{ 1.0f, 1.0f, 1.0f }) / 2.0f;
+    return color * 255.0f;
 }
 
 struct light
@@ -111,24 +109,24 @@ struct light
 
 Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
 {
-    static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
+    Eigen::Vector3f ka{ 0.005f, 0.005f, 0.005f };
     Eigen::Vector3f kd = payload.color;
-    static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
+    Eigen::Vector3f ks{ 0.7937f, 0.7937f, 0.7937f };
 
-    static std::vector<light> lights = {
-        light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
-        light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
+    std::vector<light> lights = {
+        light{{ 20.0f, 20.0f, 20.0f }, { 500.0f, 500.0f, 500.0f }},
+        light{{ -20.0f, 20.0f, 0.0f }, { 500.0f, 500.0f, 500.0f }} };
 
-    static Eigen::Vector3f amb_light_intensity{5.0f, 5.0f, 5.0f };
-    static Eigen::Vector3f eye_pos{0.0f, 0.0f, 10.0f };
+    Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
+    Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
-    constexpr static float p = 150.0f;
+    constexpr float p = 150.0f;
 
     Eigen::Vector3f normal = payload.normal.normalized();
     Eigen::Vector3f point = payload.view_pos;
     Eigen::Vector3f viewDir = (eye_pos - point).normalized();
 
-    Eigen::Vector3f color = { 0.0f, 0.0f, 0.0f };
+    Eigen::Vector3f color{ 0.0f, 0.0f, 0.0f };
 
     for (auto& light : lights)
     {
@@ -152,30 +150,27 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
 
 Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 {
-    // 好像 OpenCV 读取 png 时的返回值范围是 [0, 255]，而非 [0, 1]
-    static constexpr float reciprocal = 1.0f / 255.0f;
-
-    static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
+    Eigen::Vector3f ka{ 0.005f, 0.005f, 0.005f };
     Eigen::Vector3f kd =
         payload.texture ?
-        payload.texture->getColorBilinear(payload.tex_coords.x(), payload.tex_coords.y()) * reciprocal :
+        payload.texture->getColorBilinear(payload.tex_coords.x(), payload.tex_coords.y()) / 255.0f :
         payload.color;
-    static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
+    Eigen::Vector3f ks{ 0.7937f, 0.7937f, 0.7937f };
 
-    static std::vector<light> lights = {
-        light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
-        light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
+    std::vector<light> lights = {
+        light{{ 20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f }},
+        light{{ -20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f }} };
 
-    static Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
-    static Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
+    Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
+    Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
-    constexpr static float p = 150.0f;
+    constexpr float p = 150.0f;
 
     Eigen::Vector3f normal = payload.normal.normalized();
     Eigen::Vector3f point = payload.view_pos;
     Eigen::Vector3f viewDir = (eye_pos - point).normalized();
 
-    Eigen::Vector3f color = { 0.0f, 0.0f, 0.0f };
+    Eigen::Vector3f color{ 0.0f, 0.0f, 0.0f };
 
     for (auto &light : lights)
     {
@@ -199,8 +194,8 @@ Eigen::Vector3f texture_fragment_shader(const fragment_shader_payload &payload)
 
 Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload &payload)
 {
-    constexpr static float kh = 0.2f;
-    constexpr static float kn = 0.1f;
+    constexpr float kh = 0.2f;
+    constexpr float kn = 0.1f;
 
     Eigen::Vector3f normal = payload.normal.normalized();
 
@@ -232,28 +227,28 @@ Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload &payload)
     float du = kh * kn * (height_u - height);
     float dv = kh * kn * (height_v - height);
 
-    Eigen::Vector3f localNormal = Eigen::Vector3f{ -du, -dv, 1.0f };
+    Eigen::Vector3f localNormal{ -du, -dv, 1.0f };
     normal = (TBN * localNormal).normalized();
 
-    return normal * 255.f;
+    return normal * 255.0f;
 }
 
 Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payload)
 {
-    static Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
+    Eigen::Vector3f ka = Eigen::Vector3f(0.005f, 0.005f, 0.005f);
     Eigen::Vector3f kd = payload.color;
-    static Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
+    Eigen::Vector3f ks = Eigen::Vector3f(0.7937f, 0.7937f, 0.7937f);
 
-    static std::vector<light> lights = {
-        light{{20.0f, 20.0f, 20.0f}, {500.0f, 500.0f, 500.0f}},
-        light{{-20.0f, 20.0f, 0.0f}, {500.0f, 500.0f, 500.0f}} };
+    std::vector<light> lights = {
+        light{{ 20.0f, 20.0f, 20.0f }, { 500.0f, 500.0f, 500.0f }},
+        light{{ -20.0f, 20.0f, 0.0f }, { 500.0f, 500.0f, 500.0f }} };
 
-    static Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
-    static Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
+    Eigen::Vector3f amb_light_intensity{ 5.0f, 5.0f, 5.0f };
+    Eigen::Vector3f eye_pos{ 0.0f, 0.0f, 10.0f };
 
-    constexpr static float kh = 0.2f;
-    constexpr static float kn = 0.1f;
-    constexpr static float p = 150.0f;
+    constexpr float kh = 0.2f;
+    constexpr float kn = 0.1f;
+    constexpr float p = 150.0f;
 
     Eigen::Vector3f point = payload.view_pos;
     Eigen::Vector3f normal = payload.normal.normalized();
@@ -291,11 +286,11 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
         // 将着色点沿着原法线的方向进行位移
         point += kn * normal * height;
 
-        Eigen::Vector3f localNormal = Eigen::Vector3f{ -du, -dv, 1.0f };
+        Eigen::Vector3f localNormal{ -du, -dv, 1.0f };
         normal = (TBN * localNormal).normalized();
     }
 
-    Eigen::Vector3f color = { 0.0f, 0.0f, 0.0f };
+    Eigen::Vector3f color{ 0.0f, 0.0f, 0.0f };
 
     for (auto &light : lights)
     {
@@ -316,7 +311,7 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
         color += (ambient + diffuse + specular);
     }
 
-    return color * 255.f;
+    return color * 255.0f;
 }
 
 int main()
@@ -326,10 +321,10 @@ int main()
     Loader.LoadFile(Utils::PathFromAsset("model/spot/spot_triangulated_good.obj"));
     for(auto &mesh : Loader.LoadedMeshes)
     {
-        for(int i = 0; i < mesh.Vertices.size(); i += 3)
+        for(size_t i = 0; i < mesh.Vertices.size(); i += 3)
         {
             Triangle* t = new Triangle();
-            for(int j = 0; j < 3; ++j)
+            for(size_t j = 0; j < 3; ++j)
             {
                 t->setVertex(j, Vector4f(mesh.Vertices[i + j].Position.X, mesh.Vertices[i + j].Position.Y, mesh.Vertices[i + j].Position.Z, 1.0));
                 t->setNormal(j, Vector3f(mesh.Vertices[i + j].Normal.X, mesh.Vertices[i + j].Normal.Y, mesh.Vertices[i + j].Normal.Z));
@@ -342,8 +337,8 @@ int main()
     int key = 0;
     int frame_count = 0;
     float angle = 140.0f;
-    rst::rasterizer r(700, 700);
-    Eigen::Vector3f eye_pos = { 0.0f,0.0f,10.0f };
+    rst::rasterizer r{ 700, 700 };
+    Eigen::Vector3f eye_pos{ 0.0f,0.0f,10.0f };
 
     // normal_fragment_shader
     // phong_fragment_shader

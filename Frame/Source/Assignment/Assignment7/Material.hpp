@@ -215,13 +215,17 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
             Vector3f diffuseBRDF = m_albedo * MY_INV_PI;
 
             return KD * diffuseBRDF + specularBRDF;
-
             break;
         }
         case MaterialType::MIRROR:
         {
             // 听说完美镜面是需要考虑菲涅尔项的，有空再研究吧。
             return Vector3f{ 1.0f , 1.0f , 1.0f };
+            break;
+        }
+        default:
+        {
+            return Vector3f{ 0.0f, 0.0f, 0.0f };
             break;
         }
     }
