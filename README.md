@@ -12,7 +12,7 @@ GAMES101-Premake 是一个使用 Premake5 一键配置 GAMES101 作业运行环�
 
 [VS2022](https://visualstudio.microsoft.com/zh-hans/downloads/)
 
-[CMake Latest Release](https://cmake.org/download/)
+[CMake Latest Release](https://cmake.org/download/#latest)
 
 # 开始
 ### 1. 下载本仓库
