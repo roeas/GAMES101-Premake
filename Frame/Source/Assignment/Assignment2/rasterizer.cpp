@@ -134,8 +134,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     {
         for (uint16_t pos_y = min_y; pos_y <= max_y; ++pos_y)
         {
-            size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
-            float &depth = depth_buf[index];
+            float &depth = depth_buf[get_index((int)pos_x, (int)pos_y)];
 
             // SSAA 所采样的四个子像素相对于像素左下角坐标的偏移量
             static const std::vector<Eigen::Vector2f> s_offsets = { {0.25f, 0.25f}, {0.75f, 0.25f}, {0.25f, 0.75f}, {0.75f, 0.75f} };
@@ -150,8 +149,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
 
             for (const auto& offset : s_offsets)
             {
-                float subPos_x = static_cast<float>(pos_x) + offset.x();
-                float subPos_y = static_cast<float>(pos_y) + offset.y();
+                float subPos_x = (float)pos_x + offset.x();
+                float subPos_y = (float)pos_y + offset.y();
 
                 // 获取子像素的深度插值
                 auto [alpha, beta, gamma] = computeBarycentric2D(subPos_x, subPos_y, t.v);
@@ -174,14 +173,14 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                 }
             }
 
-            finalColor /= static_cast<float>(activeColor);
-            finalDepth /= static_cast<float>(activeDepth);
+            finalColor /= (float)activeColor;
+            finalDepth /= (float)activeDepth;
 
             // 修复框架 bug
             if (finalDepth > depth)
             {
                 depth = finalDepth;
-                set_pixel(Eigen::Vector3f{ static_cast<float>(pos_x), static_cast<float>(pos_y), finalDepth }, finalColor);
+                set_pixel(Eigen::Vector3f{ (float)pos_x, (float)pos_y, finalDepth }, finalColor);
             }
         }
     }

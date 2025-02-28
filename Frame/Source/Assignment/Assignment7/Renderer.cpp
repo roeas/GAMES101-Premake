@@ -18,7 +18,7 @@ void Renderer::Render(const Scene &scene, const uint32_t spp)
     std::cout << "SPP: " << spp << std::endl;
 
     float scale = tan(deg2rad(scene.fov * 0.5));
-    float imageAspectRatio = static_cast<float>(scene.width) / static_cast<float>(scene.height);
+    float imageAspectRatio = (float)scene.width / (float)scene.height;
     Vector3f eyePosition(278, 273, -800);
 
     size_t index = 0;
@@ -28,18 +28,18 @@ void Renderer::Render(const Scene &scene, const uint32_t spp)
     {
         for (uint32_t widthIndex = 0; widthIndex < scene.width; ++widthIndex)
         {
-            float x = (2 * (widthIndex + 0.5f) / static_cast<float>(scene.width) - 1) * imageAspectRatio * scale;
-            float y = (1 - 2 * (heightIndex + 0.5f) / static_cast<float>(scene.height)) * scale;
+            float x = (2.0f * (widthIndex + 0.5f) / (float)scene.width - 1.0f) * imageAspectRatio * scale;
+            float y = (1.0f - 2.0f * (heightIndex + 0.5f) / (float)scene.height) * scale;
             Vector3f rayDir = normalize(Vector3f(-x, y, 1.0f));
 
             #pragma omp parallel for
             for (int sppCount = 0; sppCount < spp; ++sppCount)
             {
-                framebuffer[index] += scene.castRay(Ray(eyePosition, rayDir), 0) / static_cast<float>(spp);
+                framebuffer[index] += scene.castRay(Ray(eyePosition, rayDir), 0) / (float)spp;
             }
             ++index;
         }
-        UpdateProgress(heightIndex / static_cast<float>(scene.height));
+        UpdateProgress(heightIndex / (float)scene.height);
     }
     UpdateProgress(1.0f);
 

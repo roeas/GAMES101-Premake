@@ -102,7 +102,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
         // 划分方式的总数
         constexpr uint8_t SlashCount = 8;
-        constexpr float SlashCountInv = 1.0f / static_cast<float>(SlashCount);
+        constexpr float SlashCountInv = 1.0f / (float)SlashCount;
         const float SC = centroidBounds.SurfaceArea();
 
         // 用于记录最优的划分方式
@@ -172,9 +172,9 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     std::array<int, 3> dirIsNeg{
-        static_cast<int>(ray.direction.x < 0.0f),
-        static_cast<int>(ray.direction.y < 0.0f),
-        static_cast<int>(ray.direction.z < 0.0f)
+        (int)(ray.direction.x < 0.0f),
+        (int)(ray.direction.y < 0.0f),
+        (int)(ray.direction.z < 0.0f)
     };
     if (!node->bounds.IntersectP(ray, ray.direction_inv, std::move(dirIsNeg)))
     {

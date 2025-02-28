@@ -213,7 +213,7 @@ void Renderer::Render(const Scene& scene)
     std::vector<Vector3f> framebuffer(scene.width * scene.height);
 
     float scale = std::tan(deg2rad(scene.fov * 0.5f));
-    float imageAspectRatio = static_cast<float>(scene.width) / static_cast<float>(scene.height);
+    float imageAspectRatio = (float)scene.width / (float)scene.height;
 
     // Use this variable as the eye position to start your rays.
     Vector3f eye_pos(0);
@@ -224,13 +224,13 @@ void Renderer::Render(const Scene& scene)
         {
             // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
 
-            float x = (2.0f * ((i + 0.5f) / static_cast<float>(scene.width)) - 1.0f) * scale * imageAspectRatio;
-            float y = (1.0f - 2.0f * ((j + 0.5) / static_cast<float>(scene.height))) * scale;
+            float x = (2.0f * ((i + 0.5f) / (float)scene.width) - 1.0f) * scale * imageAspectRatio;
+            float y = (1.0f - 2.0f * ((j + 0.5) / (float)scene.height)) * scale;
 
             Vector3f dir = normalize(Vector3f(x, y, -1));
             framebuffer[index++] = castRay(eye_pos, dir, scene, 0);
         }
-        UpdateProgress(j / static_cast<float>(scene.height));
+        UpdateProgress(j / (float)scene.height);
     }
 
     // save framebuffer to file

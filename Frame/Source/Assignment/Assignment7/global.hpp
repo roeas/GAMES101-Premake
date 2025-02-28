@@ -30,6 +30,6 @@ inline void UpdateProgress(const float progress)
         else if (i == pos) std::cout << ">";
         else std::cout << " ";
     }
-    std::cout << "] " << static_cast<int>(progress * 100.0f) << " %\r";
+    std::cout << "] " << (int)(progress * 100.0f) << " %\r";
     std::cout.flush();
 };

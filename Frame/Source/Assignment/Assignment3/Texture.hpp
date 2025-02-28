@@ -44,8 +44,8 @@ public:
         u = std::clamp(u, 0.0f, 1.0f);
         v = std::clamp(v, 0.0f, 1.0f);
 
-        int u_index = static_cast<int>(u * static_cast<float>(width));
-        int v_index = static_cast<int>((1.0f - v) * static_cast<float>(height));
+        int u_index = u * width;
+        int v_index = (1.0f - v) * height;
         u_index = std::clamp(u_index, 0, width - 1);
         v_index = std::clamp(v_index, 0, height - 1);
 
@@ -57,8 +57,8 @@ public:
         u = std::clamp(u, 0.0f, 1.0f);
         v = std::clamp(v, 0.0f, 1.0f);
 
-        float widthf = static_cast<float>(width);
-        float heightf = static_cast<float>(height);
+        float widthf = (float)width;
+        float heightf = (float)height;
 
         float u_img = u * widthf;
         float v_img = (1.0f - v) * heightf;
@@ -71,10 +71,10 @@ public:
         Eigen::Vector2f u11{ std::min(widthf, center.x() + 0.5f), std::min(heightf, center.y() + 0.5f) };
 
         // 边界情况，假设次采样点坐标为 (width, height)，它应当采样的下标则为 (width - 1, height - 1)
-        Eigen::Vector2i u00_index{ std::clamp(static_cast<int>(u00.x()), 0, width - 1), std::clamp(static_cast<int>(u00.y()), 0, height - 1) };
-        Eigen::Vector2i u01_index{ std::clamp(static_cast<int>(u01.x()), 0, width - 1), std::clamp(static_cast<int>(u01.y()), 0, height - 1) };
-        Eigen::Vector2i u10_index{ std::clamp(static_cast<int>(u10.x()), 0, width - 1), std::clamp(static_cast<int>(u10.y()), 0, height - 1) };
-        Eigen::Vector2i u11_index{ std::clamp(static_cast<int>(u11.x()), 0, width - 1), std::clamp(static_cast<int>(u11.y()), 0, height - 1) };
+        Eigen::Vector2i u00_index{ std::clamp((int)u00.x(), 0, width - 1), std::clamp((int)u00.y(), 0, height - 1) };
+        Eigen::Vector2i u01_index{ std::clamp((int)u01.x(), 0, width - 1), std::clamp((int)u01.y(), 0, height - 1) };
+        Eigen::Vector2i u10_index{ std::clamp((int)u10.x(), 0, width - 1), std::clamp((int)u10.y(), 0, height - 1) };
+        Eigen::Vector2i u11_index{ std::clamp((int)u11.x(), 0, width - 1), std::clamp((int)u11.y(), 0, height - 1) };
 
         Eigen::Vector3f u00_value = Vec3bToVector3f(image_data.at<cv::Vec3b>(u00_index.y(), u00_index.x()));
         Eigen::Vector3f u01_value = Vec3bToVector3f(image_data.at<cv::Vec3b>(u01_index.y(), u01_index.x()));

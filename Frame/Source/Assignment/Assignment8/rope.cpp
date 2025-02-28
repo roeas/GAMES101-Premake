@@ -18,7 +18,7 @@ Rope::Rope(Vector2D start, Vector2D end, int num_nodes, float node_mass, float k
 
     for (size_t i = 0; i < num_nodes; ++i)
     {
-        Vector2D pos = start + (end - start) * (static_cast<float>(i) / (static_cast<float>(num_nodes) - 1.0f));
+        Vector2D pos = start + (end - start) * ((float)i / ((float)num_nodes - 1.0f));
         masses.emplace_back(new Mass{ pos, node_mass, false });
     }
 

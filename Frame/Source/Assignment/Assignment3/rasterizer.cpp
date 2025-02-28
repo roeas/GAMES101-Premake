@@ -139,18 +139,18 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     {
         for (uint16_t pos_y = min_y; pos_y <= max_y; ++pos_y)
         {
-            if (!insideTriangle(static_cast<float>(pos_x) + 0.5f, static_cast<float>(pos_y) + 0.5f, t.v))
+            if (!insideTriangle((float)pos_x + 0.5f, static_cast<float>(pos_y) + 0.5f, t.v))
             {
                 continue;
             }
 
-            auto [alpha, beta, gamma] = computeBarycentric2D(static_cast<float>(pos_x), static_cast<float>(pos_y), t.v);
+            auto [alpha, beta, gamma] = computeBarycentric2D((float)pos_x, static_cast<float>(pos_y), t.v);
             float alpha_w = alpha / v[0].w();
             float beta_w = beta / v[1].w();
             float gamma_w = gamma / v[2].w();
             float final_z = 1.0f / (alpha_w + beta_w + gamma_w);
 
-            size_t index = static_cast<size_t>(get_index(static_cast<int>(pos_x), static_cast<int>(pos_y)));
+            size_t index = static_cast<size_t>(get_index((int)pos_x, (int)pos_y));
             float &depth = depth_buf[index];
 
             // 修复框架 bug
@@ -170,9 +170,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
                     std::move(texCoords),
                     texture.has_value() ? &(texture.value()) : nullptr);
 
-                set_pixel(
-                    { static_cast<float>(pos_x),static_cast<float>(pos_y) },
-                    fragment_shader(std::move(payload)));
+                set_pixel({ (int)pos_x, (int)pos_y }, fragment_shader(std::move(payload)));
             }
         }
     }
