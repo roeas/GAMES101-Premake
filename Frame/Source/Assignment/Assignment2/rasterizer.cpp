@@ -177,12 +177,6 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             finalColor /= static_cast<float>(activeColor);
             finalDepth /= static_cast<float>(activeDepth);
 
-            // 没有通过测试的子像素依旧应当对颜色与深度产生贡献，
-            // 按理来说其值应从 frame_buf_ssaax4 与 depth_buf_ssaax4 中获取。
-            // 鉴于框架本身较为简陋，这里意思到位即可。
-            // finalColor += static_cast<float>(SubPixelCount - activeColor) / static_cast<float>(SubPixelCount) * frame_buf_ssaax2[subIndex];
-            // finalDepth += static_cast<float>(SubPixelCount - activeDepth) / static_cast<float>(SubPixelCount) * depth_buf_ssaax2[subIndex];
-
             // 修复框架 bug
             if (finalDepth > depth)
             {

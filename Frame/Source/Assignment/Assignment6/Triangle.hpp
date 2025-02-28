@@ -212,7 +212,7 @@ inline Intersection Triangle::getIntersection(Ray ray)
 {
     if (dotProduct(ray.direction, normal) > 0.0f)
     {
-        // 光源位于三角形背面。
+        // 光源位于三角形背面
         return Intersection{};
     }
 

@@ -29,14 +29,14 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 {
     BVHBuildNode* pNode = new BVHBuildNode();
 
-    // 所有物体的包围盒集合。
+    // 所有物体的包围盒集合
     Bounds3 bounds;
     for (int i = 0; i < objects.size(); ++i)
     {
         bounds = Union(bounds, objects[i]->getBounds());
     }
 
-    // 只存在一个物体，建立叶节点。
+    // 只存在一个物体，建立叶节点
     if (objects.size() == 1)
     {
         pNode->bounds = objects[0]->getBounds();
@@ -46,7 +46,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
         return pNode;
     }
-    // 存在两个物体，建立其 left 和 right 叶节点。
+    // 存在两个物体，建立其 left 和 right 叶节点
     else if (objects.size() == 2)
     {
         pNode->left = recursiveBuild(std::vector{ objects[0] });
@@ -57,33 +57,33 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     }
     else
     {
-        // 由所有物体的质心组成的包围盒。
+        // 由所有物体的质心组成的包围盒
         Bounds3 centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
         {
             centroidBounds = Union(centroidBounds, objects[i]->getBounds().Centroid());
         }
 
-        // 最长的维度。
+        // 最长的维度
         switch (centroidBounds.maxExtent())
         {
         case 0:
-            // X 轴。
+            // X 轴
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
-                // 将所有物体按照其包围盒的质心的 X 轴排序，Y 轴和 Z 轴的 case 同理。
+                // 将所有物体按照其包围盒的质心的 X 轴排序，Y 轴和 Z 轴的 case 同理
                 return f1->getBounds().Centroid().x < f2->getBounds().Centroid().x;
             });
             break;
         case 1:
-            // Y 轴。
+            // Y 轴
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
                 return f1->getBounds().Centroid().y < f2->getBounds().Centroid().y;
             });
             break;
         case 2:
-            // Z 轴。
+            // Z 轴
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2)
             {
                 return f1->getBounds().Centroid().z < f2->getBounds().Centroid().z;
@@ -97,14 +97,15 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 #define ENABLE_SAH 1
 
 #if ENABLE_SAH
+
         // 一份比较清晰的 SAH 介绍：https://zhuanlan.zhihu.com/p/50720158
 
-        // 划分方式的总数。
+        // 划分方式的总数
         constexpr uint8_t SlashCount = 8;
         constexpr float SlashCountInv = 1.0f / static_cast<float>(SlashCount);
         const float SC = centroidBounds.SurfaceArea();
 
-        // 用于记录最优的划分方式。
+        // 用于记录最优的划分方式
         uint8_t minCostIndex = SlashCount / 2;
         float minCost = std::numeric_limits<float>::infinity();
 
@@ -114,7 +115,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
             auto leftObjects = std::vector<Object *>(begin, target);
             auto rightObjects = std::vector<Object *>(target, end);
 
-            // 分别计算划分之后两部分包围盒的表面积。
+            // 分别计算划分之后两部分包围盒的表面积
             Bounds3 leftBounds, rightBounds;
             for (const auto &obj : leftObjects)
             {
@@ -133,16 +134,19 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 
             if (cost < minCost)
             {
-                // 更新更优的划分方式。
+                // 更新更优的划分方式
                 minCost = cost;
                 minCostIndex = index;
             }
         }
 
         const auto &target = objects.begin() + (objects.size() * minCostIndex * SlashCountInv);
+
 #else // ENABLE_SAH
-        // 基本的 BVH 划分方式，按数量从中间一分为二。
+
+        // 基本的 BVH 划分方式，按数量从中间一分为二
         const auto &target = objects.begin() + (objects.size() / 2);
+
 #endif // ENABLE_SAH
 
         auto leftObjects = std::vector<Object *>(begin, target);

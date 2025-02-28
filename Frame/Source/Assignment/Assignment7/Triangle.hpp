@@ -225,11 +225,11 @@ inline Intersection Triangle::getIntersection(Ray ray)
 {
     if (dotProduct(ray.direction, normal) > 0.0f)
     {
-        // 光源位于三角形背面。
+        // 光源位于三角形背面
         return Intersection{};
     }
 
-    // E1, E2 在 Triangle 的构造函数中已经赋好值了。
+    // E1, E2 在 Triangle 的构造函数中已经赋好值了
     const Vector3f &E1 = e1;
     const Vector3f &E2 = e2;
     const Vector3f &D = ray.direction;

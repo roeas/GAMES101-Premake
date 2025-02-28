@@ -124,11 +124,11 @@ public:
         return false;
     }
 
-    // 返回出射光线的方向。
+    // 返回出射光线的方向
     inline Vector3f sample(const Vector3f &wi, const Vector3f &N);
-    // 返回采样的 PDF。
+    // 返回采样的 PDF
     inline float pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
-    // 返回 BRDF。
+    // 返回 BRDF
     inline Vector3f eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
 };
 
@@ -219,7 +219,7 @@ Vector3f Material::eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &
         }
         case MaterialType::MIRROR:
         {
-            // 听说完美镜面是需要考虑菲涅尔项的，有空再研究吧。
+            // 听说完美镜面是需要考虑菲涅尔项的，有空再研究吧
             return Vector3f{ 1.0f , 1.0f , 1.0f };
             break;
         }

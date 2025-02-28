@@ -62,13 +62,13 @@ Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
 
     if (!inter.happened)
     {
-        // 射线不与场景相交。
+        // 射线不与场景相交
         return Vector3f{ 0.0f };
     }
 
     if (inter.m->hasEmission())
     {
-        // 射线与光源相交。
+        // 射线与光源相交
         return inter.m->getEmission();
     }
 
@@ -89,10 +89,9 @@ Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
         float distanceToLight = (positionLight - position).norm();
         float distanceToInter = intersect(Ray{ position, lightDir }).distance;
 
-        // EPSILON 大概取 0.00001f 结果就会出现黑条纹，原理未知。
         if (Utils::FloatEqual(distanceToInter, distanceToLight, 0.0001f))
         {
-            // 着色点与光源之间无阻挡。
+            // 着色点与光源之间无阻挡
             Vector3f brdfLight = material->eval(rayDir, lightDir, normal);
             float NdotL = dotProduct(normal, lightDir);
             float NdotL_Light = dotProduct(interLight.normal.normalized(), -lightDir);
@@ -111,9 +110,7 @@ Vector3f Scene::castRay(const Ray &ray, uint32_t depth) const
         if (interNext.happened &&
             (MaterialType::MIRROR == inter.m->getType() || !interNext.m->hasEmission()))
         {
-            // 下一条射线未命中场景则停止递归。
-            // 击中光源也停止递归，因为光源的直接贡献已经在直接光的部分计算过了。
-            // 但是完美镜面材质因为不直接采样光源，故将直接光的计算移至此部分。
+            // 下一条射线未命中场景则停止递归，击中光源也停止递归
             Vector3f brdfNext = material->eval(rayDir, rayOutDir, normal);
             float pdfNext = material->pdf(rayDir, rayOutDir, normal);
             if (pdfNext >= 0.0001f)
